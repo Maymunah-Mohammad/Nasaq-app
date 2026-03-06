@@ -59,8 +59,8 @@ export default async function ReceivingStep1() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ color: '#64748B', fontSize: '14px' }}>الحالة:</span>
                             <span style={{
-                                fontWeight: 500,
-                                color: '#10B981',
+                                fontWeight: 600,
+                                color: '#047857',
                                 backgroundColor: '#D1FAE5',
                                 padding: '4px 12px',
                                 borderRadius: '20px',
