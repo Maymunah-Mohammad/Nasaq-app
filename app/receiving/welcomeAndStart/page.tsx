@@ -71,7 +71,7 @@ export default async function ReceivingStep1() {
                 </div>
 
                 <div style={{ paddingBottom: '30px' }}>
-                    <Link href={`/receiving/booking/${parcel.id}`} style={{ textDecoration: 'none' }}>
+                    <Link href={`/SelectDateAndTimeWithAI?type=receive`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
                         <NasaqOfficalBTN01 title="حجز موعد" />
                     </Link>
                 </div>
