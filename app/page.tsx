@@ -4,10 +4,7 @@ import Link from 'next/link';
 export default function Home() {
     return (
         <NasaqLayout>
-            <section style={{ display: 'flex', flexDirection: 'column', padding: '0 20px', marginTop: '20px', alignItems: 'center', width: '100%' }}>
-                <nav style={{ fontSize: '14px', color: '#0F172A', fontWeight: 500, marginBottom: '20px', alignSelf: 'flex-start' }}>
-                    تجربة نسق
-                </nav>
+            <section style={{ display: 'flex', flexDirection: 'column', padding: '0 20px', marginTop: '40px', alignItems: 'center', width: '100%' }}>
                 <h1 className="hero-title" style={{ marginBottom: '60px' }}>تجربة نسق</h1>
 
                 <div className="action-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
