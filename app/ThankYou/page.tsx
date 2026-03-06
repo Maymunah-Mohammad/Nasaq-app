@@ -16,8 +16,6 @@ function ThankYouScreen() {
             {/* Same Breadcrumb design as Step 0 */}
             <nav style={{ fontSize: '14px', color: '#64748B', marginBottom: '40px', textAlign: 'right', display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <Link href={homeLink} style={{ color: 'var(--spl-primary)', textDecoration: 'none' }}>تجربة نسق</Link>
-                <span className="material-symbols-outlined" style={{ fontSize: '12px', opacity: 0.5 }}>arrow_back_ios_new</span>
-                <span style={{ color: '#0F172A', fontWeight: 500 }}>{actionLabel}</span>
             </nav>
 
             <div style={{ marginTop: '20px', paddingBottom: '80px', textAlign: 'center' }}>
