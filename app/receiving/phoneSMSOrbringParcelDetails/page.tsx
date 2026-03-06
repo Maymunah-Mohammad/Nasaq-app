@@ -89,7 +89,6 @@ export default async function ParcelDetails() {
                             src="https://maps.googleapis.com/maps/api/staticmap?center=24.7136,46.6753&zoom=14&size=400x140&maptype=roadmap&markers=color:red%7C24.7136,46.6753&key=NO_KEY"
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             alt="Map Placeholder"
-                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
                         />
                         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#CBD5E1', zIndex: -1 }}>
                             <span className="material-symbols-outlined" style={{ fontSize: '32px', color: '#64748B' }}>map</span>
