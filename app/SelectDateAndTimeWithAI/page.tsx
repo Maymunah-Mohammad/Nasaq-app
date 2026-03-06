@@ -87,17 +87,31 @@ function AISelectionScreen() {
         <section style={{ padding: '0 20px', marginTop: '30px', paddingBottom: '80px' }}>
             {hasResults && (
                 <nav style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    {/* Back icon on the right for Arabic RTL */}
-                    <div style={{ order: 1 }}>
-                        <Link href={type === 'receive' ? '/receiving/welcomeAndStart' : '/sending/welcomeAndStart'} style={{ color: 'var(--primary-blue)', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+                    {/* Back icon on the left */}
+                    <div>
+                        <Link
+                            href={type === 'receive' ? '/receiving/welcomeAndStart' : '/sending/welcomeAndStart'}
+                            style={{
+                                color: 'var(--primary-blue)',
+                                textDecoration: 'none',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                minWidth: '44px',
+                                minHeight: '44px',
+                                borderRadius: '8px',
+                                border: '1px solid #CBD5E1',
+                                backgroundColor: '#fff'
+                            }}
+                        >
                             <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>redo</span>
                         </Link>
                     </div>
-                    {/* Breadcrumbs */}
-                    <div style={{ fontSize: '14px', color: '#64748B', display: 'flex', gap: '8px', alignItems: 'center', order: 2 }}>
+                    {/* Breadcrumbs on the right */}
+                    <div style={{ fontSize: '14px', color: '#64748B', display: 'flex', gap: '8px', alignItems: 'center' }}>
                         <span
                             onClick={() => setHasResults(false)}
-                            style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                            style={{ cursor: 'pointer' }}
                         >
                             الأوقات المفضلة
                         </span>
