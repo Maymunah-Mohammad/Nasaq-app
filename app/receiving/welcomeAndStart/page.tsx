@@ -1,5 +1,3 @@
-'use client';
-
 import SPLLayout from '../../../components/SPLLayout';
 import Link from 'next/link';
 
@@ -13,7 +11,7 @@ export default function ReceivingStep1() {
                     <span style={{ color: '#0F172A', fontWeight: 500 }}>الاستلام</span>
                 </nav>
 
-                {/* The new content will be placed here */}
+                {/* Content will be added here step by step */}
             </section>
         </SPLLayout>
     );
