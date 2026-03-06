@@ -13,9 +13,8 @@ function ThankYouScreen() {
 
     return (
         <section style={{ padding: '20px' }}>
-            {/* Same Breadcrumb design as Step 0 */}
             <nav style={{ fontSize: '14px', color: '#64748B', marginBottom: '40px', textAlign: 'right', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <Link href={homeLink} style={{ color: 'var(--spl-primary)', textDecoration: 'none' }}>تجربة نسق</Link>
+                <Link href="/" style={{ color: 'var(--spl-primary)', textDecoration: 'none' }}>تجربة نسق</Link>
             </nav>
 
             <div style={{ marginTop: '20px', paddingBottom: '80px', textAlign: 'center' }}>
