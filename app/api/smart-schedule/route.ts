@@ -48,7 +48,10 @@ export async function POST(req: Request) {
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' }); // Slightly more stable for production
+        const model = genAI.getGenerativeModel({
+            model: 'gemini-2.5-flash',
+            generationConfig: { responseMimeType: 'application/json' }
+        }); // Guarantee valid JSON output from API
 
         let promptConfig = '';
         if (type === 'receive') {
@@ -82,20 +85,26 @@ export async function POST(req: Request) {
         const result = await model.generateContent(prompt);
         const text = result.response.text().trim();
 
+        console.log("Gemini Raw Response in Production:", text);
+
         // Strip out any potential markdown codeblocks Gemini might wrap it in despite instructions
         const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
-        const recommendations = JSON.parse(cleanedText);
+        // Safely extract the JSON array using regex just in case there is text before/after
+        const arrayMatch = cleanedText.match(/\[[\s\S]*\]/);
+        const jsonToParse = arrayMatch ? arrayMatch[0] : cleanedText;
+
+        const recommendations = JSON.parse(jsonToParse);
 
         return NextResponse.json({
             error: false,
             recommendations: recommendations
         });
 
-    } catch (error) {
-        console.error('AI Error:', error);
+    } catch (error: any) {
+        console.error('AI Error trace:', error);
         return NextResponse.json(
-            { error: true, message: 'حدث خطأ في محرك الذكاء الاصطناعي، يرجى المحاولة مرة أخرى.' },
+            { error: true, message: 'حدث خطأ في محرك الذكاء الاصطناعي، يرجى المحاولة مرة أخرى.', details: error?.message || "Unknown error" },
             { status: 500 }
         );
     }
