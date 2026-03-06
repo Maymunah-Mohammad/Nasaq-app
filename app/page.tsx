@@ -8,12 +8,12 @@ export default function Home() {
                 <h1 className="hero-title" style={{ marginBottom: '60px' }}>تجربة نسق</h1>
 
                 <div className="action-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
-                    <Link href="/receiving/phoneSMSOrbringParcelDetails" className="action-btn" style={{ textDecoration: 'none' }}>
+                    <Link href="/receiving/welcomeAndStart" className="action-btn" style={{ textDecoration: 'none' }}>
                         حجز موعد استلام
                         <span className="material-symbols-outlined">arrow_downward_alt</span>
                     </Link>
 
-                    <Link href="/sending/phoneSMSOrbringParcelDetails" className="action-btn" style={{ textDecoration: 'none', backgroundColor: 'var(--spl-primary)' }}>
+                    <Link href="/sending/welcomeAndStart" className="action-btn" style={{ textDecoration: 'none', backgroundColor: 'var(--spl-primary)' }}>
                         حجز موعد إرسال
                         <span className="material-symbols-outlined">arrow_upward_alt</span>
                     </Link>
