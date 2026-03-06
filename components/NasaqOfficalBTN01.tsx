@@ -50,11 +50,6 @@ export default function NasaqOfficalBTN01({
                     if (!disabled) e.currentTarget.style.transform = 'translateY(-2px)';
                 }}
             >
-                <img
-                    src="/logo-white.png"
-                    alt="Nasaq Icon"
-                    style={{ height: '28px', width: 'auto', objectFit: 'contain' }}
-                />
                 <span style={{
                     color: '#F1F5F9',
                     fontSize: '20px',
@@ -64,6 +59,11 @@ export default function NasaqOfficalBTN01({
                 }}>
                     {title}
                 </span>
+                <img
+                    src="/logo-white.png"
+                    alt="Nasaq Icon"
+                    style={{ height: '28px', width: 'auto', objectFit: 'contain' }}
+                />
             </button>
             <span style={{
                 marginTop: '12px',
