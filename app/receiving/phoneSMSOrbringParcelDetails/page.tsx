@@ -5,18 +5,24 @@ import NasaqOfficalBTN01 from '../../../components/NasaqOfficalBTN01';
 
 // Server Component
 export default async function ParcelDetails() {
-    // 1. Fetch any existing parcel or create one on the fly if none exist
-    let parcel = await prisma.parcel.findFirst();
+    // 1. Fetch any random pending parcel from the 100 seeded fake ones
+    const parcelsCount = await prisma.pendingParcel.count();
+    const skip = Math.max(0, Math.floor(Math.random() * parcelsCount));
+
+    let parcel = await prisma.pendingParcel.findFirst({
+        skip: skip,
+    });
 
     if (!parcel) {
-        parcel = await prisma.parcel.create({
-            data: {
-                trackingNumber: `SPL-${Math.floor(100000000 + Math.random() * 900000000)}`,
-                status: 'ready_for_pickup',
-                branch: 'Al Olaya Branch',
-                phone: '+966500000000',
-            }
-        });
+        // Fallback in case the DB is completely empty before seeding
+        parcel = {
+            id: 'demo-1234',
+            trackingNumber: `SPL-${Math.floor(100000000 + Math.random() * 900000000)}`,
+            status: 'ready_for_pickup',
+            branch: 'Al Olaya Branch',
+            phone: '+966500000000',
+            createdAt: new Date(),
+        };
     }
 
     return (

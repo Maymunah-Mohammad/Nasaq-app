@@ -17,7 +17,7 @@ model Appointment {
   createdAt DateTime @default(now())
 }
 
-model Parcel {
+model PendingParcel {
   id             String   @id @default(uuid())
   trackingNumber String   @unique
   status         String   @default("ready_for_pickup")
