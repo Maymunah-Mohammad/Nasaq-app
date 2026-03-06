@@ -4,6 +4,7 @@ import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import NasaqLayout from '../../components/NasaqLayout';
+import NasaqOfficalBTN01 from '../../components/NasaqOfficalBTN01';
 
 const DAYS = [
     'الأحد',
@@ -152,28 +153,11 @@ function AISelectionScreen() {
                         </p>
                     </div>
 
-                    <button
+                    <NasaqOfficalBTN01
+                        title="بحث بالذكاء الاصطناعي"
                         onClick={runAI}
                         disabled={selectedDays.length === 0 || selectedTimes.length === 0}
-                        style={{
-                            backgroundColor: 'var(--primary-blue)',
-                            color: '#fff',
-                            borderRadius: '16px',
-                            padding: '16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            border: 'none',
-                            cursor: (selectedDays.length === 0 || selectedTimes.length === 0) ? 'not-allowed' : 'pointer',
-                            width: '100%',
-                            opacity: (selectedDays.length === 0 || selectedTimes.length === 0) ? 0.7 : 1,
-                            fontSize: '18px',
-                            fontWeight: 500,
-                            fontFamily: "'IBM Plex Sans Arabic', sans-serif"
-                        }}
-                    >
-                        بحث بالذكاء الاصطناعي
-                    </button>
+                    />
                 </div>
             )}
 
