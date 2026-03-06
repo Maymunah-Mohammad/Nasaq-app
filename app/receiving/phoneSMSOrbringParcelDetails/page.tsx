@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import NasaqOfficalBTN01 from '../../../components/NasaqOfficalBTN01';
 
+export const dynamic = 'force-dynamic';
+
 // Server Component
 export default async function ParcelDetails() {
     // 1. Fetch any random pending parcel from the 100 seeded fake ones
