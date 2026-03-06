@@ -6,16 +6,24 @@ import NasaqOfficalBTN01 from '../../../components/NasaqOfficalBTN01';
 export const dynamic = 'force-dynamic';
 
 export default async function ReceivingStep1() {
-    // 1. Fetch any random pending parcel from the 100 seeded fake ones
-    const parcelsCount = await prisma.pendingParcel.count();
-    const skip = Math.max(0, Math.floor(Math.random() * parcelsCount));
+    let parcel: any = null;
 
-    let parcel = await prisma.pendingParcel.findFirst({
-        skip: skip,
-    });
+    try {
+        // 1. Attempt to fetch a random pending parcel
+        const parcelsCount = await prisma.pendingParcel.count();
+        if (parcelsCount > 0) {
+            const skip = Math.max(0, Math.floor(Math.random() * parcelsCount));
+            parcel = await prisma.pendingParcel.findFirst({
+                skip: skip,
+            });
+        }
+    } catch (dbError) {
+        console.error('Database connection error in ReceivingStep1:', dbError);
+        // We catch the error here so the UI doesn't crash on Railway if the DB is sleeping/down
+    }
 
     if (!parcel) {
-        // Fallback in case the DB is completely empty
+        // Robust Fallback (Local Demo Mode)
         parcel = {
             id: 'demo-1234',
             trackingNumber: `SPL-${Math.floor(100000000 + Math.random() * 900000000)}`,
