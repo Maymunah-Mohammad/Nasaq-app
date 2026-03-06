@@ -63,7 +63,7 @@ function AISelectionScreen() {
             const response = await fetch('/api/smart-schedule', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type, selectedDays, selectedTimes, branch })
+                body: JSON.stringify({ type, selectedDays, selectedTimes, branch, count: 5 })
             });
             const data = await response.json();
 
@@ -95,7 +95,12 @@ function AISelectionScreen() {
                     </div>
                     {/* Breadcrumbs */}
                     <div style={{ fontSize: '14px', color: '#64748B', display: 'flex', gap: '8px', alignItems: 'center', order: 2 }}>
-                        <span>الأوقات المفضلة</span>
+                        <span
+                            onClick={() => setHasResults(false)}
+                            style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                        >
+                            الأوقات المفضلة
+                        </span>
                         <span>/</span>
                         <span style={{ color: '#0F172A', fontWeight: 600 }}>اختيارات نسق</span>
                     </div>
@@ -109,6 +114,15 @@ function AISelectionScreen() {
                     ? 'نستخدم الذكاء الاصطناعي لاختيار أفضل وقت يناسبك لاستلام شحنتك بفرع العليا بأقل ازدحام ممكن.'
                     : 'الذكاء الاصطناعي سيقترح أفضل الفروع والأوقات الأقل ازدحاماً والأقرب لك لتسليم شحنتك.'}
             </p>
+
+            {!isAnalyzing && !hasResults && !hasError && (
+                <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: '#F1F5F9', padding: '8px 16px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--primary-blue)' }}>location_on</span>
+                        <span style={{ color: '#0F172A', fontSize: '14px', fontWeight: 500 }}>حي العليا، الرياض، المملكة العربية السعودية</span>
+                    </div>
+                </div>
+            )}
 
             {!isAnalyzing && !hasResults && !hasError && (
                 <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>

@@ -6,7 +6,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
 
 export async function POST(req: Request) {
     try {
-        const { type, selectedDays, selectedTimes, branch } = await req.json();
+        const { type, selectedDays, selectedTimes, branch, count = 2 } = await req.json();
 
         // 1. The Easter Egg Error Rule (hardcoded to guarantee UX consistency as requested by user)
         if (selectedDays.length === 1 && selectedDays[0] === 'الجمعة') {
@@ -21,9 +21,9 @@ export async function POST(req: Request) {
 
         let promptConfig = '';
         if (type === 'receive') {
-            promptConfig = `Context: User wants to RECEIVE a parcel. They MUST go to "${branch || 'فرع العليا'}" only. Suggest times for this branch specifically.`;
+            promptConfig = `Context: User wants to RECEIVE a parcel. They MUST go to "${branch || 'فرع العليا'}" (Al Olaya Branch, Riyadh) only. Suggest times for this branch specifically.`;
         } else {
-            promptConfig = 'Context: User wants to SEND a parcel. You can suggest any suitable branch ideally close to central Riyadh like "فرع الملك عبدالله", "فرع الملز", "فرع الصحافة". Make one the absolute closest/fastest.';
+            promptConfig = 'Context: User wants to SEND a parcel. The user is located in "Al Olaya, Riyadh". You must suggest the closest and most suitable branches near Al Olaya such as "فرع السليمانية", "فرع الورود", "فرع التخصصي", or "فرع العليا". Prioritize least congestion.';
         }
 
         const prompt = `
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
             The user wants an appointment in one of these days: ${selectedDays.join(' or ')}.
             The user wants an appointment in one of these time slots: ${selectedTimes.join(' or ')}.
             
-            Return exactly TWO highly specific recommended appointments as a JSON array. 
+            Return exactly ${count} highly specific recommended appointments as a JSON array. 
             Do NOT return markdown framing (no \`\`\`json). Just the raw JSON array.
             
             The structure of each object in the array must be exactly:
