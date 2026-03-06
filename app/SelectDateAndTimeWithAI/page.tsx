@@ -85,6 +85,29 @@ function AISelectionScreen() {
 
     return (
         <section style={{ padding: '0 20px', marginTop: '30px', paddingBottom: '80px' }}>
+            {/* Navigation for Selection State (Pre-AI) */}
+            {!hasResults && !isAnalyzing && !hasError && (
+                <nav style={{ marginBottom: '20px', display: 'flex', justifyContent: 'flex-start' }}>
+                    <button
+                        onClick={() => window.close()}
+                        style={{
+                            color: 'var(--primary-blue)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minWidth: '44px',
+                            minHeight: '44px',
+                            borderRadius: '8px',
+                            border: '1px solid #CBD5E1',
+                            backgroundColor: '#fff',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>undo</span>
+                    </button>
+                </nav>
+            )}
+
             {hasResults && (
                 <nav style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     {/* Breadcrumbs on the right (First in RTL DOM order) */}
