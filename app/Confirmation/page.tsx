@@ -35,11 +35,17 @@ function ConfirmationScreen() {
         setIsFinishing(true);
 
         try {
-            await fetch('/api/confirm-appointment', {
+            const appointmentId = localStorage.getItem('nasaq_appointment_id');
+            const response = await fetch('/api/confirm-appointment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type, branch, date, time })
+                body: JSON.stringify({ type, branch, date, time, appointmentId })
             });
+            const data = await response.json();
+
+            if (data.appointment?.id) {
+                localStorage.setItem('nasaq_appointment_id', data.appointment.id);
+            }
 
             setIsFinishing(false);
             setIsSuccess(true);
@@ -72,6 +78,8 @@ function ConfirmationScreen() {
         <section style={{ padding: '0 20px', marginTop: '30px', paddingBottom: '80px' }}>
             <nav style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: '14px', color: '#64748B', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <span onClick={() => { router.back(); setTimeout(() => router.back(), 50); }} style={{ cursor: 'pointer' }}>الأوقات المفضلة</span>
+                    <span>/</span>
                     <span onClick={() => router.back()} style={{ cursor: 'pointer' }}>اختيارات نسق</span>
                     <span>/</span>
                     <span style={{ color: '#0F172A', fontWeight: 600 }}>تأكيد الموعد</span>
