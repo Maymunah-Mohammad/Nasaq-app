@@ -54,6 +54,7 @@ function AISelectionScreen() {
     const runAI = async () => {
         if (selectedDays.length === 0 || selectedTimes.length === 0) return;
 
+        const branch = searchParams.get('branch') || '';
         setIsAnalyzing(true);
         setHasResults(false);
         setHasError(false);
@@ -62,7 +63,7 @@ function AISelectionScreen() {
             const response = await fetch('/api/smart-schedule', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type, selectedDays, selectedTimes })
+                body: JSON.stringify({ type, selectedDays, selectedTimes, branch })
             });
             const data = await response.json();
 
@@ -84,12 +85,22 @@ function AISelectionScreen() {
 
     return (
         <section style={{ padding: '0 20px', marginTop: '30px', paddingBottom: '80px' }}>
-            <nav style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#0F172A', fontWeight: 600, fontSize: '16px' }}>حجز موعد</span>
-                <Link href={type === 'receive' ? '/receiving/welcomeAndStart' : '/sending/welcomeAndStart'} style={{ color: 'var(--primary-blue)', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>redo</span>
-                </Link>
-            </nav>
+            {hasResults && (
+                <nav style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    {/* Back icon on the right for Arabic RTL */}
+                    <div style={{ order: 1 }}>
+                        <Link href={type === 'receive' ? '/receiving/welcomeAndStart' : '/sending/welcomeAndStart'} style={{ color: 'var(--primary-blue)', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>redo</span>
+                        </Link>
+                    </div>
+                    {/* Breadcrumbs */}
+                    <div style={{ fontSize: '14px', color: '#64748B', display: 'flex', gap: '8px', alignItems: 'center', order: 2 }}>
+                        <span>الأوقات المفضلة</span>
+                        <span>/</span>
+                        <span style={{ color: '#0F172A', fontWeight: 600 }}>اختيارات نسق</span>
+                    </div>
+                </nav>
+            )}
             <h1 className="hero-title" style={{ textAlign: 'center', marginBottom: '10px' }}>
                 المواعيد الذكية بـ نَسَق
             </h1>

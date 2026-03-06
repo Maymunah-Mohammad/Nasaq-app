@@ -6,7 +6,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
 
 export async function POST(req: Request) {
     try {
-        const { type, selectedDays, selectedTimes } = await req.json();
+        const { type, selectedDays, selectedTimes, branch } = await req.json();
 
         // 1. The Easter Egg Error Rule (hardcoded to guarantee UX consistency as requested by user)
         if (selectedDays.length === 1 && selectedDays[0] === 'الجمعة') {
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
         let promptConfig = '';
         if (type === 'receive') {
-            promptConfig = 'Context: User wants to RECEIVE a parcel. They must go to "فرع العليا" (Al Olaya Branch) only.';
+            promptConfig = `Context: User wants to RECEIVE a parcel. They MUST go to "${branch || 'فرع العليا'}" only. Suggest times for this branch specifically.`;
         } else {
             promptConfig = 'Context: User wants to SEND a parcel. You can suggest any suitable branch ideally close to central Riyadh like "فرع الملك عبدالله", "فرع الملز", "فرع الصحافة". Make one the absolute closest/fastest.';
         }
