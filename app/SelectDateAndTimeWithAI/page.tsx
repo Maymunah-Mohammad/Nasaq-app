@@ -228,11 +228,6 @@ function AISelectionScreen() {
                         ))}
                     </div>
 
-                    <div style={{ backgroundColor: '#FEF3C7', borderLeft: '4px solid #F59E0B', padding: '12px 16px', borderRadius: '8px', marginBottom: '24px' }}>
-                        <p style={{ color: '#92400E', fontSize: '13px', lineHeight: 1.6 }} dir="auto">
-                            <strong>تلميح:</strong> لاختبار ميزة رفض الذكاء الاصطناعي للمواعيد المزدحمة، اختر يوم <strong>"الجمعة"</strong> فقط.
-                        </p>
-                    </div>
 
                     <NasaqOfficalBTN01
                         title="بحث بالذكاء الاصطناعي"
