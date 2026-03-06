@@ -7,6 +7,7 @@ interface NasaqOfficalBTN01Props {
     className?: string;
     type?: "button" | "submit" | "reset";
     disabled?: boolean;
+    href?: string;
 }
 
 export default function NasaqOfficalBTN01({

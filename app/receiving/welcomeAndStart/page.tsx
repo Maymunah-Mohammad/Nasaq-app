@@ -71,9 +71,10 @@ export default async function ReceivingStep1() {
                 </div>
 
                 <div style={{ paddingBottom: '30px' }}>
-                    <Link href={`/SelectDateAndTimeWithAI?type=receive`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                        <NasaqOfficalBTN01 title="حجز موعد" />
-                    </Link>
+                    <NasaqOfficalBTN01
+                        title="حجز موعد"
+                        onClick={() => window.open(`/SelectDateAndTimeWithAI?type=receive`, '_blank')}
+                    />
                 </div>
 
             </section>

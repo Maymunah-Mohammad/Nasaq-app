@@ -2,8 +2,8 @@
 
 import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import NasaqLayout from '../../components/NasaqLayout';
-import NasaqOfficalBTN01 from '../../components/NasaqOfficalBTN01';
 
 const DAYS = [
     'الأحد',
@@ -83,6 +83,13 @@ function AISelectionScreen() {
 
     return (
         <section style={{ padding: '0 20px', marginTop: '30px', paddingBottom: '80px' }}>
+            <nav style={{ fontSize: '14px', color: '#64748B', marginBottom: '20px', textAlign: 'right', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <Link href="/" style={{ color: 'var(--primary-blue)', textDecoration: 'none' }}>الرئيسية</Link>
+                <span>/</span>
+                <Link href={type === 'receive' ? '/receiving/welcomeAndStart' : '/sending/welcomeAndStart'} style={{ color: 'var(--primary-blue)', textDecoration: 'none' }}>{type === 'receive' ? 'الاستلام' : 'الإرسال'}</Link>
+                <span>/</span>
+                <span style={{ color: '#0F172A', fontWeight: 500 }}>المواعيد الذكية</span>
+            </nav>
             <h1 className="hero-title" style={{ textAlign: 'center', marginBottom: '10px' }}>
                 المواعيد الذكية بـ نَسَق
             </h1>
@@ -146,11 +153,28 @@ function AISelectionScreen() {
                         </p>
                     </div>
 
-                    <NasaqOfficalBTN01
-                        title="بحث بالذكاء الاصطناعي"
+                    <button
                         onClick={runAI}
                         disabled={selectedDays.length === 0 || selectedTimes.length === 0}
-                    />
+                        style={{
+                            backgroundColor: 'var(--primary-blue)',
+                            color: '#fff',
+                            borderRadius: '16px',
+                            padding: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: 'none',
+                            cursor: (selectedDays.length === 0 || selectedTimes.length === 0) ? 'not-allowed' : 'pointer',
+                            width: '100%',
+                            opacity: (selectedDays.length === 0 || selectedTimes.length === 0) ? 0.7 : 1,
+                            fontSize: '18px',
+                            fontWeight: 500,
+                            fontFamily: "'IBM Plex Sans Arabic', sans-serif"
+                        }}
+                    >
+                        بحث بالذكاء الاصطناعي
+                    </button>
                 </div>
             )}
 

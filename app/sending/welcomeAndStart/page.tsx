@@ -37,9 +37,10 @@ export default function SendingStep1() {
                 </div>
 
                 <div style={{ marginTop: '50px' }}>
-                    <Link href="/SelectDateAndTimeWithAI?type=send" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                        <NasaqOfficalBTN01 title="حجز موعد" />
-                    </Link>
+                    <NasaqOfficalBTN01
+                        title="حجز موعد"
+                        onClick={() => window.open("/SelectDateAndTimeWithAI?type=send", "_blank")}
+                    />
                 </div>
             </section>
         </SPLLayout>
