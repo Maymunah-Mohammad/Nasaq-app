@@ -248,6 +248,11 @@ body {
 }
 
 /* SPL Container */
+.spl-container,
+.spl-container * {
+    font-family: 'Cairo', sans-serif;
+}
+
 .spl-container {
     width: 100%;
     max-width: 402px;
