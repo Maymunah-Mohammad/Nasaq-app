@@ -16,12 +16,18 @@ export default function NasaqOfficalBTN01({
     className = "",
     type = "button",
     disabled = false,
+    href
 }: NasaqOfficalBTN01Props) {
+    const handleClick = () => {
+        if (onClick) onClick();
+        if (href) window.open(href, '_blank');
+    };
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }} className={className}>
             <button
                 type={type}
-                onClick={onClick}
+                onClick={handleClick}
                 disabled={disabled}
                 style={{
                     backgroundColor: '#2A2C79',

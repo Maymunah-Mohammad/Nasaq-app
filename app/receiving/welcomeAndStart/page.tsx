@@ -73,7 +73,7 @@ export default async function ReceivingStep1() {
                 <div style={{ paddingBottom: '30px' }}>
                     <NasaqOfficalBTN01
                         title="حجز موعد"
-                        onClick={() => window.open(`/SelectDateAndTimeWithAI?type=receive`, '_blank')}
+                        href="/SelectDateAndTimeWithAI?type=receive"
                     />
                 </div>
 
