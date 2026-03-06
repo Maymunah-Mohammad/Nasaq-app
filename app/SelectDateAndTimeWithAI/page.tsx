@@ -161,7 +161,7 @@ function AISelectionScreen() {
                 </nav>
             )}
             <h1 className="hero-title" style={{ textAlign: 'center', marginBottom: '10px' }}>
-                المواعيد الذكية بـ نَسَق
+                اختيارات نَسَق
             </h1>
             <p style={{ textAlign: 'center', color: '#64748B', fontSize: '14px', lineHeight: 1.6, marginBottom: '30px' }}>
                 {type === 'receive'
