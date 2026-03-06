@@ -83,12 +83,11 @@ function AISelectionScreen() {
 
     return (
         <section style={{ padding: '0 20px', marginTop: '30px', paddingBottom: '80px' }}>
-            <nav style={{ fontSize: '14px', color: '#64748B', marginBottom: '20px', textAlign: 'right', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <Link href="/" style={{ color: 'var(--primary-blue)', textDecoration: 'none' }}>الرئيسية</Link>
-                <span>/</span>
-                <Link href={type === 'receive' ? '/receiving/welcomeAndStart' : '/sending/welcomeAndStart'} style={{ color: 'var(--primary-blue)', textDecoration: 'none' }}>{type === 'receive' ? 'الاستلام' : 'الإرسال'}</Link>
-                <span>/</span>
-                <span style={{ color: '#0F172A', fontWeight: 500 }}>المواعيد الذكية</span>
+            <nav style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#0F172A', fontWeight: 600, fontSize: '16px' }}>حجز موعد</span>
+                <Link href={type === 'receive' ? '/receiving/welcomeAndStart' : '/sending/welcomeAndStart'} style={{ color: 'var(--primary-blue)', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>redo</span>
+                </Link>
             </nav>
             <h1 className="hero-title" style={{ textAlign: 'center', marginBottom: '10px' }}>
                 المواعيد الذكية بـ نَسَق
