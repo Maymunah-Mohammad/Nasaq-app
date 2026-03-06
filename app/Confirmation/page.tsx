@@ -52,7 +52,7 @@ function ConfirmationScreen() {
 
             // Wait 2 seconds showing Lottie, then redirect to SPL Thank you page
             setTimeout(() => {
-                router.push('/ThankYou');
+                router.push(`/ThankYou?type=${encodeURIComponent(type)}`);
             }, 2000);
 
         } catch (error) {
