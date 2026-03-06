@@ -31,6 +31,8 @@ function AISelectionScreen() {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [hasResults, setHasResults] = useState(false);
     const [hasError, setHasError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [aiRecommendations, setAiRecommendations] = useState<any[]>([]);
 
     const toggleDay = (day: string) => {
         if (selectedDays.includes(day)) {
@@ -48,25 +50,35 @@ function AISelectionScreen() {
         }
     };
 
-    const runAI = () => {
+    const runAI = async () => {
         if (selectedDays.length === 0 || selectedTimes.length === 0) return;
 
         setIsAnalyzing(true);
         setHasResults(false);
         setHasError(false);
 
-        // Simulate AI thinking and congestion checking
-        setTimeout(() => {
+        try {
+            const response = await fetch('/api/smart-schedule', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type, selectedDays, selectedTimes })
+            });
+            const data = await response.json();
+
             setIsAnalyzing(false);
 
-            // Logic to trigger the specific error state required by the user
-            // If they ONLY select 'الجمعة' (Friday is usually off/heavy), we throw the error state to showcase this capability
-            if (selectedDays.length === 1 && selectedDays[0] === 'الجمعة') {
+            if (data.error) {
                 setHasError(true);
+                setErrorMessage(data.message || 'عذراً، لا توجد مواعيد متاحة في هذا الفرع حالياً. جرب اختيار يوم آخر');
             } else {
+                setAiRecommendations(data.recommendations || []);
                 setHasResults(true);
             }
-        }, 2200); // Wait 2.2 seconds to simulate analysis
+        } catch (error) {
+            setIsAnalyzing(false);
+            setHasError(true);
+            setErrorMessage('فشل الاتصال بالذكاء الاصطناعي.');
+        }
     };
 
     return (
@@ -166,7 +178,7 @@ function AISelectionScreen() {
                     </div>
                     <h2 style={{ color: '#0F172A', fontSize: '20px', fontWeight: 600, marginBottom: '12px' }}>لا توجد مواعيد متاحة</h2>
                     <p style={{ color: '#475569', fontSize: '15px', lineHeight: 1.6, marginBottom: '32px' }}>
-                        عذراً، لا توجد مواعيد متاحة في هذا الفرع حالياً. جرب اختيار يوم آخر.
+                        {errorMessage || 'عذراً، لا توجد مواعيد متاحة في هذا الفرع حالياً. جرب اختيار يوم آخر.'}
                     </p>
                     <button
                         onClick={() => { setHasError(false); setSelectedDays([]); }}
@@ -184,51 +196,50 @@ function AISelectionScreen() {
                         <button onClick={() => { setHasResults(false); }} style={{ background: 'none', border: 'none', color: 'var(--primary-blue)', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline', fontFamily: "'IBM Plex Sans Arabic', sans-serif" }}>تغيير التفضيلات</button>
                     </div>
 
-                    {/* Result 1 (Best AI Option) */}
-                    <div style={{ backgroundColor: '#fff', border: '2px solid var(--primary-blue)', padding: '20px', borderRadius: '16px', position: 'relative', cursor: 'pointer', transition: 'transform 0.2s', boxShadow: '0 4px 12px rgba(42,44,121,0.1)' }}>
-                        <div style={{ position: 'absolute', top: '-12px', right: '20px', backgroundColor: 'var(--primary-blue)', color: '#fff', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 500 }}>🌟 التوصية الأفضل</div>
+                    {aiRecommendations.map((rec, index) => (
+                        <div key={index} style={{
+                            backgroundColor: '#fff',
+                            border: (index === 0 || rec.isBest) ? '2px solid var(--primary-blue)' : '1px solid #E2E8F0',
+                            padding: '20px',
+                            borderRadius: '16px',
+                            position: 'relative',
+                            cursor: 'pointer',
+                            transition: 'transform 0.2s',
+                            boxShadow: (index === 0 || rec.isBest) ? '0 4px 12px rgba(42,44,121,0.1)' : 'none'
+                        }}>
+                            {(index === 0 || rec.isBest) && (
+                                <div style={{ position: 'absolute', top: '-12px', right: '20px', backgroundColor: 'var(--primary-blue)', color: '#fff', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 500 }}>🌟 التوصية الأفضل</div>
+                            )}
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: '8px' }}>
-                            <div>
-                                <h3 style={{ color: '#0F172A', fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>يوم {selectedDays[0]}</h3>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#475569', fontSize: '14px', marginBottom: '8px' }}>
-                                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>schedule</span>
-                                    <span>{selectedTimes[0] === 'صباحاً' ? '10:30 ص' : selectedTimes[0] === 'ظهراً' ? '02:00 م' : '08:30 م'}</span>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#475569', fontSize: '14px' }}>
-                                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>location_on</span>
-                                    <span>{type === 'receive' ? 'فرع العليا' : 'فرع الملك عبدالله (الأقرب والأسرع)'}</span>
-                                </div>
-                            </div>
-                            <div style={{ backgroundColor: '#D1FAE5', color: '#047857', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>group</span>
-                                ازدحام منخفض
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Result 2 (Alternative Date/Time combinations) */}
-                    {selectedDays.length > 0 && (
-                        <div style={{ backgroundColor: '#fff', border: '1px solid #E2E8F0', padding: '20px', borderRadius: '16px', cursor: 'pointer' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: (index === 0 || rec.isBest) ? '8px' : '0' }}>
                                 <div>
-                                    <h3 style={{ color: '#0F172A', fontSize: '16px', fontWeight: 600, marginBottom: '4px' }}>يوم {selectedDays[selectedDays.length > 1 ? 1 : 0]}</h3>
+                                    <h3 style={{ color: '#0F172A', fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>يوم {rec.day}</h3>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#475569', fontSize: '14px', marginBottom: '8px' }}>
                                         <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>schedule</span>
-                                        <span>{selectedTimes.includes('مساءً') ? '07:15 م' : '11:45 ص'}</span>
+                                        <span>{rec.timeString}</span>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#475569', fontSize: '14px' }}>
                                         <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>location_on</span>
-                                        <span>{type === 'receive' ? 'فرع العليا' : 'فرع الملز (2 كم)'}</span>
+                                        <span>{rec.branch}</span>
                                     </div>
                                 </div>
-                                <div style={{ backgroundColor: '#FEF3C7', color: '#B45309', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <div style={{
+                                    backgroundColor: rec.congestionLevel === 'منخفض' ? '#D1FAE5' : '#FEF3C7',
+                                    color: rec.congestionLevel === 'منخفض' ? '#047857' : '#B45309',
+                                    padding: '6px 12px',
+                                    borderRadius: '8px',
+                                    fontSize: '12px',
+                                    fontWeight: 600,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px'
+                                }}>
                                     <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>group</span>
-                                    ازدحام متوسط
+                                    {rec.congestionLevel === 'منخفض' ? 'ازدحام منخفض' : 'ازدحام متوسط'}
                                 </div>
                             </div>
                         </div>
-                    )}
+                    ))}
                 </div>
             )}
         </section>
