@@ -1,16 +1,23 @@
-import NasaqLayout from '../../../../components/NasaqLayout';
+import NasaqLayout from '../../../components/NasaqLayout';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
-import NasaqOfficalBTN01 from '../../../../components/NasaqOfficalBTN01';
-import { notFound } from 'next/navigation';
+import NasaqOfficalBTN01 from '../../../components/NasaqOfficalBTN01';
 
-export default async function ParcelDetails({ params }: { params: { id: string } }) {
-    // 1. Fetch parcel using Prisma Server-Side
-    const parcel = await prisma.parcel.findUnique({
-        where: { id: params.id }
-    });
+// Server Component
+export default async function ParcelDetails() {
+    // 1. Fetch any existing parcel or create one on the fly if none exist
+    let parcel = await prisma.parcel.findFirst();
 
-    if (!parcel) return notFound();
+    if (!parcel) {
+        parcel = await prisma.parcel.create({
+            data: {
+                trackingNumber: `SPL-${Math.floor(100000000 + Math.random() * 900000000)}`,
+                status: 'ready_for_pickup',
+                branch: 'Al Olaya Branch',
+                phone: '+966500000000',
+            }
+        });
+    }
 
     return (
         <NasaqLayout>
@@ -90,7 +97,7 @@ export default async function ParcelDetails({ params }: { params: { id: string }
 
                 <div style={{ paddingBottom: '30px' }}>
                     <Link href={`/receiving/booking/${parcel.id}`} style={{ textDecoration: 'none' }}>
-                        <NasaqOfficalBTN01 title="حجز موعد جديد" />
+                        <NasaqOfficalBTN01 title="حجز موعد" />
                     </Link>
                 </div>
 

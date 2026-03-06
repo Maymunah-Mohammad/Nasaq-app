@@ -8,10 +8,10 @@ export default function Home() {
                 <h1 className="hero-title" style={{ marginBottom: '60px' }}>تجربة نسق</h1>
 
                 <div className="action-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
-                    <a href="/api/receiving/create-parcel" className="action-btn" style={{ textDecoration: 'none' }}>
+                    <Link href="/receiving/phoneSMSOrbringParcelDetails" className="action-btn" style={{ textDecoration: 'none' }}>
                         حجز موعد استلام
                         <span className="material-symbols-outlined">arrow_downward_alt</span>
-                    </a>
+                    </Link>
 
                     <Link href="/sending/phoneSMSOrbringParcelDetails" className="action-btn" style={{ textDecoration: 'none', backgroundColor: 'var(--spl-primary)' }}>
                         حجز موعد إرسال
