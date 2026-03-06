@@ -34,6 +34,7 @@ function AISelectionScreen() {
     const [hasError, setHasError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [aiRecommendations, setAiRecommendations] = useState<any[]>([]);
+    const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
     const toggleDay = (day: string) => {
         if (selectedDays.includes(day)) {
@@ -58,6 +59,7 @@ function AISelectionScreen() {
         setIsAnalyzing(true);
         setHasResults(false);
         setHasError(false);
+        setExpandedIndex(null);
 
         try {
             const response = await fetch('/api/smart-schedule', {
@@ -301,16 +303,18 @@ function AISelectionScreen() {
                     </div>
 
                     {aiRecommendations.map((rec, index) => (
-                        <div key={index} style={{
-                            backgroundColor: '#fff',
-                            border: (index === 0 || rec.isBest) ? '2px solid var(--primary-blue)' : '1px solid #E2E8F0',
-                            padding: '20px',
-                            borderRadius: '16px',
-                            position: 'relative',
-                            cursor: 'pointer',
-                            transition: 'transform 0.2s',
-                            boxShadow: (index === 0 || rec.isBest) ? '0 4px 12px rgba(42,44,121,0.1)' : 'none'
-                        }}>
+                        <div key={index}
+                            onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
+                            style={{
+                                backgroundColor: '#fff',
+                                border: (index === 0 || rec.isBest) ? '2px solid var(--primary-blue)' : '1px solid #E2E8F0',
+                                padding: '20px',
+                                borderRadius: '16px',
+                                position: 'relative',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease',
+                                boxShadow: (index === 0 || rec.isBest) ? '0 4px 12px rgba(42,44,121,0.1)' : 'none'
+                            }}>
                             {(index === 0 || rec.isBest) && (
                                 <div style={{ position: 'absolute', top: '-12px', right: '20px', backgroundColor: 'var(--primary-blue)', color: '#fff', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 500 }}>🌟 التوصية الأفضل</div>
                             )}
@@ -343,6 +347,15 @@ function AISelectionScreen() {
                                     {rec.congestionLevel === 'منخفض' ? 'ازدحام منخفض' : 'ازدحام متوسط'}
                                 </div>
                             </div>
+
+                            {expandedIndex === index && (
+                                <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'center' }}>
+                                    <NasaqOfficalBTN01
+                                        title="تأكيد الموعد"
+                                        href={`/Confirmation?type=${encodeURIComponent(type)}&branch=${encodeURIComponent(rec.branch)}&day=${encodeURIComponent(rec.day)}&date=${encodeURIComponent(rec.date)}&time=${encodeURIComponent(rec.timeString)}`}
+                                    />
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
