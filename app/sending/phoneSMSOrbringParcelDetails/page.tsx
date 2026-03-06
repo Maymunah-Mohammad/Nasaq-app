@@ -38,7 +38,7 @@ export default function SendingStep1() {
 
                 <div style={{ marginTop: '50px' }}>
                     <Link href="/sending/step2" style={{ textDecoration: 'none' }}>
-                        <NasaqOfficalBTN01 title="حجز موعد إرسال" />
+                        <NasaqOfficalBTN01 title="حجز موعد" />
                     </Link>
                 </div>
             </section>
