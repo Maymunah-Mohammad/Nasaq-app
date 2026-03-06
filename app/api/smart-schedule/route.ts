@@ -2,11 +2,13 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Initialize the Google Generative AI client
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
-
 export async function POST(req: Request) {
     try {
         const { type, selectedDays, selectedTimes, branch, count = 2 } = await req.json();
+
+        // 1. Initialize GenAI inside the handler to ensure env vars are loaded
+        const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
         // 1. The Easter Egg Error Rule (hardcoded to guarantee UX consistency as requested by user)
         if (selectedDays.length === 1 && selectedDays[0] === 'الجمعة') {
@@ -15,9 +17,6 @@ export async function POST(req: Request) {
                 message: 'عذراً، لا توجد مواعيد متاحة في هذا الفرع حالياً. جرب اختيار يوم آخر'
             });
         }
-
-        // 2. Prepare prompt for Gemini
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
         let promptConfig = '';
         if (type === 'receive') {
