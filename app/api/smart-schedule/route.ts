@@ -26,6 +26,7 @@ export async function POST(req: Request) {
             const demoRecommendations = [
                 {
                     "day": selectedDays[0] || 'الأحد',
+                    "date": "10-05-2026",
                     "timeString": selectedTimes[0] === 'صباحاً' ? '10:15 ص' : '02:30 م',
                     "branch": branch || (type === 'receive' ? 'فرع العليا' : 'فرع السليمانية'),
                     "congestionLevel": "منخفض",
@@ -33,6 +34,7 @@ export async function POST(req: Request) {
                 },
                 {
                     "day": selectedDays[selectedDays.length - 1] || 'الاثنين',
+                    "date": "11-05-2026",
                     "timeString": selectedTimes[0] === 'صباحاً' ? '11:45 ص' : '04:15 م',
                     "branch": type === 'receive' ? (branch || 'فرع العليا') : 'فرع الورود',
                     "congestionLevel": "متوسط",
@@ -64,6 +66,7 @@ export async function POST(req: Request) {
             You are "Nasaq AI", an intelligent logistics scheduling assistant for SPL (Saudi Post).
             ${promptConfig}
             
+            Today's Date: ${new Date().toLocaleDateString('en-GB')}
             The user wants an appointment in one of these days: ${selectedDays.join(' or ')}.
             The user wants an appointment in one of these time slots: ${selectedTimes.join(' or ')}.
             
@@ -73,6 +76,7 @@ export async function POST(req: Request) {
             The structure of each object in the array must be exactly:
             {
                 "day": "One of the selected days",
+                "date": "The exact calendar date of the upcoming selected day formatted as DD-MM-YYYY",
                 "timeString": "A specific time like '10:30 ص' or '02:15 م' matching their requested time slot",
                 "branch": "The specific branch name",
                 "congestionLevel": "Either 'منخفض' (low) for the best one, or 'متوسط' (medium)",
