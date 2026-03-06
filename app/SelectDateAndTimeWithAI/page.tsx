@@ -73,7 +73,23 @@ function AISelectionScreen() {
                 setHasError(true);
                 setErrorMessage(data.message || 'عذراً، لا توجد مواعيد متاحة في هذا الفرع حالياً. جرب اختيار يوم آخر');
             } else {
-                setAiRecommendations(data.recommendations || []);
+                const recs = data.recommendations || [];
+
+                // Sort recommendations to securely force the best options (isBest/low congestion) to the top of the list
+                const sortedRecs = [...recs].sort((a: any, b: any) => {
+                    const scoreA = (a.isBest ? 2 : 0) + (a.congestionLevel === 'منخفض' ? 1 : 0);
+                    const scoreB = (b.isBest ? 2 : 0) + (b.congestionLevel === 'منخفض' ? 1 : 0);
+                    return scoreB - scoreA;
+                });
+
+                // Guarantee the UI only ever highlights the #1 absolute best to avoid visual duplication bugs from AI hallucinations
+                if (sortedRecs.length > 0) {
+                    sortedRecs.forEach((r, idx) => {
+                        r.isBest = (idx === 0);
+                    });
+                }
+
+                setAiRecommendations(sortedRecs);
                 setHasResults(true);
             }
         } catch (error) {
