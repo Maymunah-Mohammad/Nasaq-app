@@ -181,7 +181,7 @@ function ConfirmationScreen() {
                     opacity: isFinishing ? 0.7 : 1
                 }}
             >
-                {isFinishing ? 'جاري التأكيد...' : 'إنهاء'}
+                {isFinishing ? 'جاري التأكيد...' : 'تأكيد'}
             </button>
         </section>
     );
