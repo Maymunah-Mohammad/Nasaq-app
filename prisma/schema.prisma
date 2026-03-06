@@ -8,13 +8,17 @@ datasource db {
 }
 
 model Appointment {
-  id        String   @id @default(uuid())
-  type      String   // "pickup" or "dropoff"
-  phone     String
-  status    String   @default("pending")
-  branch    String?  // e.g. "Riyadh Branch", or null for any suitable branch
-  date      DateTime @default(now())
-  createdAt DateTime @default(now())
+  id              String         @id @default(uuid())
+  type            String         // "pickup" or "dropoff"
+  phone           String
+  status          String         @default("pending")
+  branch          String?        // branch for the appointment
+  date            DateTime       @default(now())
+  createdAt       DateTime       @default(now())
+
+  // Link to the pending parcel this appointment is for (for receive shipments)
+  pendingParcelId String?
+  pendingParcel   PendingParcel? @relation(fields: [pendingParcelId], references: [id])
 }
 
 model PendingParcel {
@@ -24,4 +28,6 @@ model PendingParcel {
   branch         String
   phone          String
   createdAt      DateTime @default(now())
+
+  appointments   Appointment[]
 }
