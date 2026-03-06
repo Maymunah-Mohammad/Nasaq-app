@@ -18,24 +18,6 @@ export default function ThankYouPage() {
                     تم تأكيد موعدك بنجاح. ننتظر زيارتك للفرع في الوقت المحدد.
                 </p>
 
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <Link href="/" style={{ textDecoration: 'none', width: '100%', maxWidth: '300px' }}>
-                        <button style={{
-                            width: '100%',
-                            backgroundColor: 'var(--spl-primary)',
-                            color: '#fff',
-                            border: 'none',
-                            padding: '16px',
-                            borderRadius: '12px',
-                            fontSize: '18px',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            fontFamily: "'IBM Plex Sans Arabic', sans-serif"
-                        }}>
-                            العودة للصفحة الرئيسية
-                        </button>
-                    </Link>
-                </div>
             </section>
         </SPLLayout>
     );
