@@ -87,7 +87,19 @@ function AISelectionScreen() {
         <section style={{ padding: '0 20px', marginTop: '30px', paddingBottom: '80px' }}>
             {hasResults && (
                 <nav style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    {/* Back icon on the left */}
+                    {/* Breadcrumbs on the right (First in RTL DOM order) */}
+                    <div style={{ fontSize: '14px', color: '#64748B', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <span
+                            onClick={() => setHasResults(false)}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            الأوقات المفضلة
+                        </span>
+                        <span>/</span>
+                        <span style={{ color: '#0F172A', fontWeight: 600 }}>اختيارات نسق</span>
+                    </div>
+
+                    {/* Back icon on the left (Second in RTL DOM order) */}
                     <div>
                         <Link
                             href={type === 'receive' ? '/receiving/welcomeAndStart' : '/sending/welcomeAndStart'}
@@ -104,19 +116,8 @@ function AISelectionScreen() {
                                 backgroundColor: '#fff'
                             }}
                         >
-                            <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>redo</span>
+                            <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>undo</span>
                         </Link>
-                    </div>
-                    {/* Breadcrumbs on the right */}
-                    <div style={{ fontSize: '14px', color: '#64748B', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        <span
-                            onClick={() => setHasResults(false)}
-                            style={{ cursor: 'pointer' }}
-                        >
-                            الأوقات المفضلة
-                        </span>
-                        <span>/</span>
-                        <span style={{ color: '#0F172A', fontWeight: 600 }}>اختيارات نسق</span>
                     </div>
                 </nav>
             )}
