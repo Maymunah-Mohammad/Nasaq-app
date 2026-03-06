@@ -28,7 +28,7 @@ export default async function ReceivingStep1() {
             id: 'demo-1234',
             trackingNumber: `SPL-${Math.floor(100000000 + Math.random() * 900000000)}`,
             status: 'ready_for_pickup',
-            branch: 'Al Olaya Branch',
+            branch: 'فرع العليا',
             phone: '+966500000000',
             createdAt: new Date(),
         };

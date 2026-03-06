@@ -9,25 +9,22 @@ datasource db {
 
 model Appointment {
   id              String         @id @default(uuid())
-  type            String         // "pickup" or "dropoff"
+  type            String
   phone           String
   status          String         @default("pending")
-  branch          String?        // branch for the appointment
+  branch          String?
   date            DateTime       @default(now())
   createdAt       DateTime       @default(now())
-
-  // Link to the pending parcel this appointment is for (for receive shipments)
   pendingParcelId String?
   pendingParcel   PendingParcel? @relation(fields: [pendingParcelId], references: [id])
 }
 
 model PendingParcel {
-  id             String   @id @default(uuid())
-  trackingNumber String   @unique
-  status         String   @default("ready_for_pickup")
+  id             String        @id @default(uuid())
+  trackingNumber String        @unique
+  status         String        @default("ready_for_pickup")
   branch         String
   phone          String
-  createdAt      DateTime @default(now())
-
+  createdAt      DateTime      @default(now())
   appointments   Appointment[]
 }
