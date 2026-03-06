@@ -139,7 +139,9 @@ function ConfirmationScreen() {
                         fontFamily: "'IBM Plex Sans Arabic', sans-serif"
                     }}
                     onClick={() => {
-                        window.open(`http://www.google.com/calendar/event?action=TEMPLATE&text=موعد+في+${encodeURIComponent(branch)}&dates=${date.replace(/-/g, '')}T080000Z/${date.replace(/-/g, '')}T090000Z`, '_blank');
+                        const actionWord = type === 'receive' ? 'استلام' : 'تسليم';
+                        const titleText = `موعد ${actionWord} شحنة في سبل ${branch}`;
+                        window.open(`http://www.google.com/calendar/event?action=TEMPLATE&text=${encodeURIComponent(titleText)}&dates=${date.replace(/-/g, '')}T080000Z/${date.replace(/-/g, '')}T090000Z`, '_blank');
                     }}
                 >
                     + إضافة إلى التقويم
