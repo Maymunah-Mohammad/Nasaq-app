@@ -115,6 +115,10 @@ function ConfirmationScreen() {
 
             <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #E2E8F0' }}>
+                    <span style={{ color: '#64748B', fontSize: '15px' }}>نوع الموعد:</span>
+                    <span style={{ color: '#0F172A', fontWeight: 600 }}>{type === 'receive' ? 'استلام شحنة' : 'تسليم شحنة'}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #E2E8F0' }}>
                     <span style={{ color: '#64748B', fontSize: '15px' }}>الفرع:</span>
                     <span style={{ color: '#0F172A', fontWeight: 600 }}>{branch}</span>
                 </div>
