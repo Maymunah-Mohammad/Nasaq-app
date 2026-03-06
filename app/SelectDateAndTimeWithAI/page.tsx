@@ -352,6 +352,8 @@ function AISelectionScreen() {
                                 <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'center' }}>
                                     <NasaqOfficalBTN01
                                         title="تأكيد الموعد"
+                                        showLogo={false}
+                                        showCredit={false}
                                         href={`/Confirmation?type=${encodeURIComponent(type)}&branch=${encodeURIComponent(rec.branch)}&day=${encodeURIComponent(rec.day)}&date=${encodeURIComponent(rec.date)}&time=${encodeURIComponent(rec.timeString)}`}
                                     />
                                 </div>

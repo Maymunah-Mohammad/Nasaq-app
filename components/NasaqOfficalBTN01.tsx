@@ -8,6 +8,8 @@ interface NasaqOfficalBTN01Props {
     type?: "button" | "submit" | "reset";
     disabled?: boolean;
     href?: string;
+    showLogo?: boolean;
+    showCredit?: boolean;
 }
 
 export default function NasaqOfficalBTN01({
@@ -16,7 +18,9 @@ export default function NasaqOfficalBTN01({
     className = "",
     type = "button",
     disabled = false,
-    href
+    href,
+    showLogo = true,
+    showCredit = true
 }: NasaqOfficalBTN01Props) {
     const handleClick = () => {
         if (onClick) onClick();
@@ -66,21 +70,25 @@ export default function NasaqOfficalBTN01({
                 }}>
                     {title}
                 </span>
-                <img
-                    src="/logo-white.png"
-                    alt="Nasaq Icon"
-                    style={{ height: '28px', width: 'auto', objectFit: 'contain' }}
-                />
+                {showLogo && (
+                    <img
+                        src="/logo-white.png"
+                        alt="Nasaq Icon"
+                        style={{ height: '28px', width: 'auto', objectFit: 'contain' }}
+                    />
+                )}
             </button>
-            <span style={{
-                marginTop: '12px',
-                color: '#A4A4A4',
-                fontSize: '11px',
-                fontWeight: 500,
-                fontFamily: "'IBM Plex Sans Arabic', sans-serif"
-            }}>
-                مدعوم من نسق
-            </span>
+            {showCredit && (
+                <span style={{
+                    marginTop: '12px',
+                    color: '#A4A4A4',
+                    fontSize: '11px',
+                    fontWeight: 500,
+                    fontFamily: "'IBM Plex Sans Arabic', sans-serif"
+                }}>
+                    مدعوم من نسق
+                </span>
+            )}
         </div>
     );
 }
