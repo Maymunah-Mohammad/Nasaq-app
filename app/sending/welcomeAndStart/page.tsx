@@ -10,7 +10,7 @@ export default function SendingStep1() {
             <section style={{ padding: '20px' }}>
                 <nav style={{ fontSize: '14px', color: '#64748B', marginBottom: '40px', textAlign: 'right', display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <Link href="/" style={{ color: 'var(--spl-primary)', textDecoration: 'none' }}>تجربة نسق</Link>
-                    <span>،</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '12px', opacity: 0.5 }}>arrow_back_ios_new</span>
                     <span style={{ color: '#0F172A', fontWeight: 500 }}>إرسال شحنة</span>
                 </nav>
 
@@ -37,22 +37,10 @@ export default function SendingStep1() {
                 </div>
 
                 <div style={{ marginTop: '50px' }}>
-                    <Link href="/SelectDateAndTimeWithAI?type=send" target="_blank" rel="noopener noreferrer" style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: 'var(--spl-primary)',
-                        color: '#fff',
-                        borderRadius: '32px',
-                        padding: '16px',
-                        fontSize: '18px',
-                        fontWeight: 600,
-                        textDecoration: 'none',
-                        width: '100%',
-                        fontFamily: "'Cairo', sans-serif"
-                    }}>
-                        حجز موعد
-                    </Link>
+                    <NasaqOfficalBTN01
+                        title="حجز موعد"
+                        href="/SelectDateAndTimeWithAI?type=send"
+                    />
                 </div>
             </section>
         </SPLLayout>
