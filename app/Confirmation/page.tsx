@@ -6,8 +6,8 @@ import Lottie from 'lottie-react';
 import NasaqLayout from '../../components/NasaqLayout';
 import Link from 'next/link';
 
-// URL to a Lottie JSON for a green checkmark
-const SUCCESS_ANIMATION_URL = "https://assets9.lottiefiles.com/packages/lf20_t2bmdm1g.json"; // This is a public green checkmark lottie
+// URL to a local Lottie JSON for a green checkmark
+const SUCCESS_ANIMATION_URL = "/success.json";
 
 function ConfirmationScreen() {
     const searchParams = useSearchParams();
