@@ -283,7 +283,8 @@ function AISelectionScreen() {
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: (index === 0 || rec.isBest) ? '8px' : '0' }}>
                                 <div>
-                                    <h3 style={{ color: '#0F172A', fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>يوم {rec.day} <span style={{ fontSize: '14px', color: '#64748B', fontWeight: 400 }}>({rec.date})</span></h3>
+                                    <h3 style={{ color: '#0F172A', fontSize: '18px', fontWeight: 600, marginBottom: '0px' }}>يوم {rec.day}</h3>
+                                    <div style={{ fontSize: '14px', color: '#64748B', fontWeight: 400, marginBottom: '8px' }}>{rec.date}</div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#475569', fontSize: '14px', marginBottom: '8px' }}>
                                         <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>schedule</span>
                                         <span>{rec.timeString}</span>
