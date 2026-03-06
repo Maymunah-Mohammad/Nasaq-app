@@ -261,6 +261,24 @@ function AISelectionScreen() {
 
             {hasResults && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ marginBottom: '8px', backgroundColor: '#F8FAFC', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                        <h3 style={{ color: '#64748B', fontSize: '13px', fontWeight: 500, marginBottom: '12px' }}>بناءً على اختياراتك لـ:</h3>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {selectedDays.map(day => (
+                                <span key={day} style={{ backgroundColor: 'rgba(42, 44, 121, 0.1)', color: 'var(--primary-blue)', padding: '4px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                    <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>calendar_today</span>
+                                    {day}
+                                </span>
+                            ))}
+                            {selectedTimes.map(time => (
+                                <span key={time} style={{ backgroundColor: '#E0F2FE', color: '#0369A1', padding: '4px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                    <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>schedule</span>
+                                    {time}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                         <h2 style={{ color: '#0F172A', fontSize: '16px', fontWeight: 600 }}>أفضل المواعيد المقترحة لك:</h2>
                         <button onClick={() => { setHasResults(false); }} style={{ background: 'none', border: 'none', color: 'var(--primary-blue)', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline', fontFamily: "'IBM Plex Sans Arabic', sans-serif" }}>تغيير التفضيلات</button>
