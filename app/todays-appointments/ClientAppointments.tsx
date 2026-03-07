@@ -63,6 +63,15 @@ export default function ClientAppointments({ appointments }: { appointments: App
         setSelectedAppointmentId(null);
     };
 
+    const getManualArTime = (date: Date) => {
+        let h = date.getHours();
+        const m = date.getMinutes().toString().padStart(2, '0');
+        const suffix = h >= 12 ? 'م' : 'ص';
+        h = h % 12;
+        h = h ? h : 12; // the hour '0' should be '12'
+        return `${h}:${m} ${suffix}`;
+    };
+
     const now = new Date();
     const passedList: Appointment[] = [];
     const currentList: Appointment[] = [];
@@ -103,7 +112,7 @@ export default function ClientAppointments({ appointments }: { appointments: App
                         موعد {isSent ? 'إرسال' : 'استلام'} شحنة
                     </div>
                     <div style={{ backgroundColor: '#E2E8F0', color: '#444', padding: '4px 12px', borderRadius: '20px', fontSize: '12px' }}>
-                        {isMounted ? dateObj.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) : '...'}
+                        {isMounted ? getManualArTime(dateObj) : '...'}
                     </div>
                 </div>
 
