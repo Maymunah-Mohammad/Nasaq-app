@@ -5,8 +5,31 @@ export async function POST(req: Request) {
     try {
         const { type, branch, date, time, appointmentId } = await req.json();
 
-        // 1. Save data to Postgres via Prisma
-        const appointmentDate = new Date(); // Mocking exact time parsing for demo
+        // 1. Save data to Postgres via Prisma with precise time parsing for the AI feature
+        let appointmentDate = new Date();
+        try {
+            if (date && time) {
+                const [dayStr, monthStr, yearStr] = date.split('-');
+                let hourOfDay = 12;
+
+                const hourMatch = time.match(/(\d+):/);
+                if (hourMatch) {
+                    let h = parseInt(hourMatch[1], 10);
+                    if (time.includes('ص')) {
+                        hourOfDay = h === 12 ? 0 : h;
+                    } else if (time.includes('م')) {
+                        hourOfDay = h === 12 ? 12 : h + 12;
+                    }
+                }
+
+                const year = parseInt(yearStr, 10);
+                const month = parseInt(monthStr, 10) - 1;
+                const day = parseInt(dayStr, 10);
+                appointmentDate = new Date(year, month, day, hourOfDay, 0, 0);
+            }
+        } catch (e) {
+            console.error("Failed parsing specific date time, falling back to current date:", e);
+        }
 
         let appointment;
 
