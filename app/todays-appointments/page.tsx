@@ -6,68 +6,56 @@ import ClientAppointments from './ClientAppointments';
 export const dynamic = 'force-dynamic'; // Disable cache so the page always renders the latest appointments
 
 export default async function TodaysAppointmentsPage() {
-    try {
-        // Get today's date boundaries
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
+    // Get today's date boundaries
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
 
-        const todayEnd = new Date();
-        todayEnd.setHours(23, 59, 59, 999);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
 
-        // Fetch only today's appointments (ordering by date descending to see newest first)
-        const appointments = await prisma.appointment.findMany({
-            where: {
-                date: {
-                    gte: todayStart,
-                    lte: todayEnd,
-                }
-            },
-            include: {
-                pendingParcel: true
-            },
-            orderBy: {
-                createdAt: 'desc'
+    // Fetch only today's appointments (ordering by date descending to see newest first)
+    const appointments = await prisma.appointment.findMany({
+        where: {
+            date: {
+                gte: todayStart,
+                lte: todayEnd,
             }
-        });
+        },
+        include: {
+            pendingParcel: true
+        },
+        orderBy: {
+            createdAt: 'desc'
+        }
+    });
 
-        // We can format the appointment data for the client
-        const serializedAppointments = appointments.map(app => ({
-            id: app.id,
-            type: app.type, // e.g. 'send', 'receive'
-            status: app.status,
-            branch: app.branch || 'غير محدد',
-            date: app?.date ? new Date(app.date).toISOString() : new Date().toISOString(),
-            phone: app.phone || '',
-            trackingNumber: app.pendingParcel?.trackingNumber || 'بدون رقم تتبع'
-        }));
+    // We can format the appointment data for the client
+    const serializedAppointments = appointments.map(app => ({
+        id: app.id,
+        type: app.type, // e.g. 'send', 'receive'
+        status: app.status,
+        branch: app.branch || 'غير محدد',
+        date: app?.date ? new Date(app.date).toISOString() : new Date().toISOString(),
+        phone: app.phone || '',
+        trackingNumber: app.pendingParcel?.trackingNumber || 'بدون رقم تتبع'
+    }));
 
-        return (
-            <NasaqLayout>
-                <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto' }}>
-                    {/* Breadcrumb Navigation */}
-                    <div style={{ padding: '0 0 20px', color: '#666', fontSize: '14px', borderBottom: '1px solid #eaeaea', marginBottom: '20px' }}>
-                        <Link href="/" style={{ textDecoration: 'none', color: '#666', transition: 'color 0.2s' }}>الرئيسية</Link>
-                        <span style={{ margin: '0 8px' }}>/</span>
-                        <span style={{ color: 'var(--primary-blue)', fontWeight: 'bold' }}>مواعيد اليوم</span>
-                    </div>
-
-                    <div style={{ flexGrow: 1 }}>
-                        <h1 style={{ fontSize: '24px', color: 'var(--primary-blue)', marginBottom: '20px' }}>مواعيد اليوم</h1>
-
-                        <ClientAppointments appointments={serializedAppointments} />
-                    </div>
+    return (
+        <NasaqLayout>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto' }}>
+                {/* Breadcrumb Navigation */}
+                <div style={{ padding: '0 0 20px', color: '#666', fontSize: '14px', borderBottom: '1px solid #eaeaea', marginBottom: '20px' }}>
+                    <Link href="/" style={{ textDecoration: 'none', color: '#666', transition: 'color 0.2s' }}>الرئيسية</Link>
+                    <span style={{ margin: '0 8px' }}>/</span>
+                    <span style={{ color: 'var(--primary-blue)', fontWeight: 'bold' }}>مواعيد اليوم</span>
                 </div>
-            </NasaqLayout>
-        );
-    } catch (error: any) {
-        return (
-            <NasaqLayout>
-                <div style={{ padding: '40px 20px', color: 'red' }}>
-                    <h1>Server Error Occurred</h1>
-                    <pre style={{ whiteSpace: 'pre-wrap' }}>{error.message || String(error)}</pre>
-                    <pre style={{ whiteSpace: 'pre-wrap' }}>{error.stack}</pre>
+
+                <div style={{ flexGrow: 1 }}>
+                    <h1 style={{ fontSize: '24px', color: 'var(--primary-blue)', marginBottom: '20px' }}>مواعيد اليوم</h1>
+
+                    <ClientAppointments appointments={serializedAppointments} />
                 </div>
-            </NasaqLayout>
-        );
-    }
+            </div>
+        </NasaqLayout>
+    );
 }
