@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { prisma } from '@/lib/prisma';
 
 // Initialize the client on demand to ensure env vars are loaded correctly in production
 const getGenAI = () => new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
@@ -55,11 +56,31 @@ export async function POST(req: Request) {
             generationConfig: { responseMimeType: 'application/json' }
         }); // Guarantee valid JSON output from API
 
+        // 3. Fetch Real-Time Congestion Data from Prisma!
+        const olayaCount = await prisma.appointment.count({ where: { branch: 'فرع العليا' } });
+        const sulaimaniyahCount = await prisma.appointment.count({ where: { branch: 'فرع السليمانية' } });
+        const wurudCount = await prisma.appointment.count({ where: { branch: 'فرع الورود' } });
+        const takhasusiCount = await prisma.appointment.count({ where: { branch: 'فرع التخصصي' } });
+
         let promptConfig = '';
         if (type === 'receive') {
-            promptConfig = `Context: User wants to RECEIVE a parcel. They MUST go to "${branch || 'فرع العليا'}" (Al Olaya Branch, Riyadh) only. Suggest times for this branch specifically.`;
+            const currentBranchCount = await prisma.appointment.count({ where: { branch: branch || 'فرع العليا' } });
+            promptConfig = `Context: User wants to RECEIVE a parcel. They MUST go to "${branch || 'فرع العليا'}" (Al Olaya Branch, Riyadh) only. The current number of appointments booked for this branch is ${currentBranchCount}. Suggest times for this branch specifically.`;
         } else {
-            promptConfig = 'Context: User wants to SEND a parcel. The user is located in "Al Olaya, Riyadh". You must suggest the closest and most suitable branches near Al Olaya such as "فرع السليمانية", "فرع الورود", "فرع التخصصي", or "فرع العليا". Prioritize least congestion.';
+            promptConfig = `
+                Context: User wants to SEND a parcel. The user is located in "Al Olaya, Riyadh". 
+                You must suggest the closest and most suitable branches from the live data below.
+                
+                LIVE DATABASE CONGESTION DATA (Current Total Appointments booked):
+                - 'فرع العليا': ${olayaCount} appointments
+                - 'فرع السليمانية': ${sulaimaniyahCount} appointments
+                - 'فرع الورود': ${wurudCount} appointments
+                - 'فرع التخصصي': ${takhasusiCount} appointments
+
+                You MUST suggest exactly two DIFFERENT branches from the live data list above. 
+                The branch that has the LOWEST number of appointments out of those options MUST be your absolute first ("isBest": true) recommendation, with its "congestionLevel" accurately labeled as 'منخفض' (Low). 
+                The branch with a slightly higher relative number of appointments should be your second recommendation, with its "congestionLevel" labeled as 'متوسط' (Medium). 
+            `;
         }
 
         const prompt = `
