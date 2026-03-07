@@ -35,6 +35,27 @@ function AISelectionScreen() {
     const [errorMessage, setErrorMessage] = useState('');
     const [aiRecommendations, setAiRecommendations] = useState<any[]>([]);
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+    const [selectedExactTime, setSelectedExactTime] = useState<string>('');
+
+    const handleExpand = (index: number) => {
+        if (expandedIndex === index) {
+            setExpandedIndex(null);
+        } else {
+            setExpandedIndex(index);
+            // Default select the AI's exact recommended time when opening
+            setSelectedExactTime(aiRecommendations[index].timeString);
+        }
+    };
+
+    const getTimeGrid = (timeString: string) => {
+        if (timeString.includes('ص')) {
+            return ['08:00 ص', '09:00 ص', '10:00 ص', '11:00 ص'];
+        } else {
+            const h = parseInt(timeString.split(':')[0] || '1', 10);
+            if (h === 12 || h <= 3) return ['12:00 م', '01:00 م', '02:00 م', '03:00 م'];
+            return ['04:00 م', '05:00 م', '06:00 م', '07:00 م', '08:00 م'];
+        }
+    };
 
     const toggleDay = (day: string) => {
         if (selectedDays.includes(day)) {
@@ -299,14 +320,12 @@ function AISelectionScreen() {
 
                     {aiRecommendations.map((rec, index) => (
                         <div key={index}
-                            onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
                             style={{
                                 backgroundColor: '#fff',
                                 border: (index === 0 || rec.isBest) ? '2px solid var(--primary-blue)' : '1px solid #E2E8F0',
                                 padding: '20px',
                                 borderRadius: '16px',
                                 position: 'relative',
-                                cursor: 'pointer',
                                 transition: 'all 0.3s ease',
                                 boxShadow: (index === 0 || rec.isBest) ? '0 4px 12px rgba(42,44,121,0.1)' : 'none'
                             }}>
@@ -314,13 +333,16 @@ function AISelectionScreen() {
                                 <div style={{ position: 'absolute', top: '-12px', right: '20px', backgroundColor: 'var(--primary-blue)', color: '#fff', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 500 }}>🌟 التوصية الأفضل</div>
                             )}
 
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: (index === 0 || rec.isBest) ? '8px' : '0' }}>
+                            <div
+                                onClick={() => handleExpand(index)}
+                                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', cursor: 'pointer', marginTop: (index === 0 || rec.isBest) ? '8px' : '0' }}
+                            >
                                 <div>
                                     <h3 style={{ color: '#0F172A', fontSize: '18px', fontWeight: 600, marginBottom: '0px' }}>يوم {rec.day}</h3>
                                     <div style={{ fontSize: '14px', color: '#64748B', fontWeight: 400, marginBottom: '8px' }}>{rec.date}</div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#475569', fontSize: '14px', marginBottom: '8px' }}>
                                         <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>schedule</span>
-                                        <span>{rec.timeString}</span>
+                                        <span>الفترة: {rec.timeString.includes('ص') ? 'الصباحية' : 'المسائية'}</span>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#475569', fontSize: '14px' }}>
                                         <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>location_on</span>
@@ -343,9 +365,6 @@ function AISelectionScreen() {
                                         {rec.congestionLevel === 'منخفض' ? 'ازدحام منخفض' : (rec.congestionLevel === 'متوسط' ? 'ازدحام متوسط' : 'مزدحم جداً')}
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', marginTop: '4px' }}>
-                                        <div style={{ fontSize: '13px', color: '#B45309', fontWeight: 600, backgroundColor: '#FFFBEB', padding: '2px 8px', borderRadius: '4px' }}>
-                                            {rec.hourAppointmentCount || 0} مسجلين في هذا الوقت
-                                        </div>
                                         <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>
                                             {rec.appointmentCount} مسجلين طوال اليوم
                                         </div>
@@ -354,13 +373,41 @@ function AISelectionScreen() {
                             </div>
 
                             {expandedIndex === index && (
-                                <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'center' }}>
-                                    <NasaqOfficalBTN01
-                                        title="تأكيد الموعد"
-                                        showLogo={false}
-                                        showCredit={false}
-                                        href={`/Confirmation?type=${encodeURIComponent(type)}&branch=${encodeURIComponent(rec.branch)}&day=${encodeURIComponent(rec.day)}&date=${encodeURIComponent(rec.date)}&time=${encodeURIComponent(rec.timeString)}`}
-                                    />
+                                <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #E2E8F0' }}>
+                                    <h4 style={{ color: '#0F172A', fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>
+                                        اختر الوقت الدقيق الذي يناسبك:
+                                    </h4>
+
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
+                                        {getTimeGrid(rec.timeString).map(t => (
+                                            <button
+                                                key={t}
+                                                onClick={(e) => { e.stopPropagation(); setSelectedExactTime(t); }}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    borderRadius: '8px',
+                                                    border: `1px solid ${selectedExactTime === t ? 'var(--primary-blue)' : '#CBD5E1'}`,
+                                                    backgroundColor: selectedExactTime === t ? 'rgba(42, 44, 121, 0.05)' : '#fff',
+                                                    color: selectedExactTime === t ? 'var(--primary-blue)' : '#475569',
+                                                    fontWeight: selectedExactTime === t ? 600 : 400,
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s ease',
+                                                    fontFamily: "'IBM Plex Sans Arabic', sans-serif"
+                                                }}
+                                            >
+                                                {t}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                        <NasaqOfficalBTN01
+                                            title="تأكيد الموعد"
+                                            showLogo={false}
+                                            showCredit={false}
+                                            href={`/Confirmation?type=${encodeURIComponent(type)}&branch=${encodeURIComponent(rec.branch)}&day=${encodeURIComponent(rec.day)}&date=${encodeURIComponent(rec.date)}&time=${encodeURIComponent(selectedExactTime)}`}
+                                        />
+                                    </div>
                                 </div>
                             )}
                         </div>
