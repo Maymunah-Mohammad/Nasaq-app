@@ -122,6 +122,7 @@ export async function POST(req: Request) {
                 "isBest": true or false (Only the first one should be true)
             }
             
+            CRITICAL ANTI-DUPLICATION RULE: You MUST ensure that every single recommendation in the array is completely UNIQUE. Never return the exact same date and time period twice for the same branch! Give the user distinct, spread-out options.
             Ensure the output is in Arabic matching the user's language.
         `;
 
