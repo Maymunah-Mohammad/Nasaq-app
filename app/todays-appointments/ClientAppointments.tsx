@@ -25,6 +25,15 @@ export default function ClientAppointments({ appointments }: { appointments: App
     const [isMounted, setIsMounted] = useState(false);
     React.useEffect(() => {
         setIsMounted(true);
+        // Load arrived appointments from localStorage on mount
+        const stored = localStorage.getItem('nasaq_arrived_appointments');
+        if (stored) {
+            try {
+                setArrivedAppointments(JSON.parse(stored));
+            } catch (e) {
+                console.error("Failed to parse stored appointments", e);
+            }
+        }
     }, []);
 
     const handleConfirmArrival = (id: string) => {
@@ -36,7 +45,11 @@ export default function ClientAppointments({ appointments }: { appointments: App
     const confirmAction = () => {
         const newQueueNumber = `A${Math.floor(Math.random() * 90) + 10}`;
         if (selectedAppointmentId) {
-            setArrivedAppointments(prev => ({ ...prev, [selectedAppointmentId]: newQueueNumber }));
+            setArrivedAppointments(prev => {
+                const updated = { ...prev, [selectedAppointmentId]: newQueueNumber };
+                localStorage.setItem('nasaq_arrived_appointments', JSON.stringify(updated));
+                return updated;
+            });
         }
         setQueueNumber(newQueueNumber);
         setShowConfirmModal(false);
@@ -80,7 +93,6 @@ export default function ClientAppointments({ appointments }: { appointments: App
                         </div>
 
                         <div style={{ color: '#555', fontSize: '14px', lineHeight: '1.6' }}>
-                            نوع العمل: <span style={{ fontWeight: 'bold', color: '#111' }}>{isSent ? 'إرسال شحنة (Send Parcel)' : 'استلام شحنة (Receive Parcel)'}</span> <br />
                             رقم التتبع: <span style={{ fontWeight: 'bold', color: '#111' }}>{app.trackingNumber}</span> <br />
                             الفرع: <span style={{ fontWeight: 'bold', color: '#111' }}>{app.branch}</span> <br />
                             التاريخ: <span style={{ fontWeight: 'bold', color: '#111' }}>{isMounted ? dateObj.toLocaleDateString('ar-SA') : '...'}</span>
