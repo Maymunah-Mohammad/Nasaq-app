@@ -228,9 +228,9 @@ export async function POST(req: Request) {
                 recommendations[i].isBest = false;
 
                 // Dynamic thresholding for congestion levels based on HOUR count:
-                if (hourCount <= 2) {
+                if (hourCount <= 5) {
                     recommendations[i].congestionLevel = 'منخفض';
-                } else if (hourCount <= 5) {
+                } else if (hourCount <= 10) {
                     recommendations[i].congestionLevel = 'متوسط';
                 } else {
                     recommendations[i].congestionLevel = 'عالي';
