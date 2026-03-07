@@ -327,19 +327,24 @@ function AISelectionScreen() {
                                         <span>{rec.branch}</span>
                                     </div>
                                 </div>
-                                <div style={{
-                                    backgroundColor: rec.congestionLevel === 'منخفض' ? '#D1FAE5' : '#FEF3C7',
-                                    color: rec.congestionLevel === 'منخفض' ? '#047857' : '#B45309',
-                                    padding: '6px 12px',
-                                    borderRadius: '8px',
-                                    fontSize: '12px',
-                                    fontWeight: 600,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '4px'
-                                }}>
-                                    <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>group</span>
-                                    {rec.congestionLevel === 'منخفض' ? 'ازدحام منخفض' : 'ازدحام متوسط'}
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                                    <div style={{
+                                        backgroundColor: rec.congestionLevel === 'منخفض' ? '#D1FAE5' : '#FEF3C7',
+                                        color: rec.congestionLevel === 'منخفض' ? '#047857' : '#B45309',
+                                        padding: '6px 12px',
+                                        borderRadius: '8px',
+                                        fontSize: '12px',
+                                        fontWeight: 600,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                    }}>
+                                        <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>group</span>
+                                        {rec.congestionLevel === 'منخفض' ? 'ازدحام منخفض' : 'ازدحام متوسط'}
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>
+                                        {rec.appointmentCount} شخص مسجل
+                                    </div>
                                 </div>
                             </div>
 

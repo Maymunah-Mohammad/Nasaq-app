@@ -31,6 +31,7 @@ export async function POST(req: Request) {
                     "timeString": selectedTimes[0] === 'صباحاً' ? '10:15 ص' : '02:30 م',
                     "branch": branch || (type === 'receive' ? 'فرع العليا' : 'فرع السليمانية'),
                     "congestionLevel": "منخفض",
+                    "appointmentCount": 12,
                     "isBest": true
                 },
                 {
@@ -39,6 +40,7 @@ export async function POST(req: Request) {
                     "timeString": selectedTimes[0] === 'صباحاً' ? '11:45 ص' : '04:15 م',
                     "branch": type === 'receive' ? (branch || 'فرع العليا') : 'فرع الورود',
                     "congestionLevel": "متوسط",
+                    "appointmentCount": 45,
                     "isBest": false
                 }
             ];
@@ -101,6 +103,7 @@ export async function POST(req: Request) {
                 "timeString": "A specific time like '10:30 ص' or '02:15 م' matching their requested time slot",
                 "branch": "The specific branch name",
                 "congestionLevel": "Either 'منخفض' (low) for the best one, or 'متوسط' (medium)",
+                "appointmentCount": "The exact integer number of appointments for this specific branch from the LIVE DATABASE CONGESTION DATA. (Number only)",
                 "isBest": true or false (Only the first one should be true)
             }
             
