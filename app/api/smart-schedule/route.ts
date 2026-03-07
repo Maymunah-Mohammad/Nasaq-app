@@ -194,7 +194,6 @@ export async function POST(req: Request) {
                 });
 
                 rec.appointmentCount = strictDayCount;
-                rec.hourAppointmentCount = strictHourCount;
 
                 // 4b. Generate the exact Hour-by-Hour Breakdown for the specific period grid
                 const periodHours = [];
@@ -210,12 +209,15 @@ export async function POST(req: Request) {
                 }
 
                 const hourlyBreakdown = [];
+                let totalPeriodCount = 0;
                 for (let ph of periodHours) {
                     const sHour = new Date(year, month, day, ph, 0, 0);
                     const eHour = new Date(year, month, day, ph, 59, 59);
                     const ct = await prisma.appointment.count({
                         where: { branch: safeBranch, date: { gte: sHour, lte: eHour } }
                     });
+
+                    totalPeriodCount += ct;
 
                     let label = ph === 0 || ph === 12 ? 12 : (ph > 12 ? ph - 12 : ph);
                     let suffix = ph >= 12 && ph < 24 ? 'م' : 'ص';
@@ -224,34 +226,35 @@ export async function POST(req: Request) {
                 }
 
                 rec.hourlyBreakdown = hourlyBreakdown;
+                rec.periodAppointmentCount = totalPeriodCount;
 
             } catch (e) {
                 // Fallback to total branch count if date parsing fails
                 if (liveCountsMap[safeBranch] !== undefined) {
                     rec.appointmentCount = liveCountsMap[safeBranch];
-                    rec.hourAppointmentCount = 0;
+                    rec.periodAppointmentCount = 0;
                     rec.hourlyBreakdown = [];
                 } else {
                     const adHocCount = await prisma.appointment.count({ where: { branch: safeBranch } });
                     rec.appointmentCount = adHocCount;
-                    rec.hourAppointmentCount = 0;
+                    rec.periodAppointmentCount = 0;
                     rec.hourlyBreakdown = [];
                 }
             }
         }
 
         // 5. Mathematically re-evaluate "isBest" and "congestionLevel" based on the REAL counts 
-        // to prevent UI mismatch. First sort by the HOUR congestion, then by the DAY congestion.
+        // to prevent UI mismatch. First sort by the PERIOD congestion, then by the DAY congestion.
         recommendations.sort((a: any, b: any) => {
-            if (a.hourAppointmentCount !== b.hourAppointmentCount) {
-                return a.hourAppointmentCount - b.hourAppointmentCount;
+            if (a.periodAppointmentCount !== b.periodAppointmentCount) {
+                return a.periodAppointmentCount - b.periodAppointmentCount;
             }
             return a.appointmentCount - b.appointmentCount;
         });
 
         // After sorting, the lowest count is guaranteed to be at index 0.
         for (let i = 0; i < recommendations.length; i++) {
-            const hourCount = recommendations[i].hourAppointmentCount;
+            const periodCount = recommendations[i].periodAppointmentCount || 0;
             // The absolute minimum in the array is at index 0
             if (i === 0) {
                 recommendations[i].isBest = true;
@@ -259,10 +262,10 @@ export async function POST(req: Request) {
                 recommendations[i].isBest = false;
             }
 
-            // Dynamic thresholding for congestion levels based on HOUR count:
-            if (hourCount <= 2) {
+            // Dynamic thresholding for congestion levels based on ENTIRE PERIOD count (4-5 hours total):
+            if (periodCount <= 8) {
                 recommendations[i].congestionLevel = 'منخفض';
-            } else if (hourCount <= 5) {
+            } else if (periodCount <= 15) {
                 recommendations[i].congestionLevel = 'متوسط';
             } else {
                 recommendations[i].congestionLevel = 'عالي';
