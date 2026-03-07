@@ -139,16 +139,37 @@ export async function POST(req: Request) {
 
         const recommendations = JSON.parse(jsonToParse);
 
-        // Security Override: Explicitly inject the correct Postgres counts to overwrite AI hallucinations
+        // Security Override: Explicitly query Postgres for the EXACT date and branch the AI selected!
         for (let rec of recommendations) {
             const safeBranch = rec.branch;
-            if (liveCountsMap[safeBranch] !== undefined) {
-                rec.appointmentCount = liveCountsMap[safeBranch];
-            } else {
-                // If AI hallucinated a random branch name, fetch it ad-hoc
-                const adHocCount = await prisma.appointment.count({ where: { branch: safeBranch } });
-                rec.appointmentCount = adHocCount;
+            let targetCount = 0;
+
+            try {
+                // Parse AI date format "DD-MM-YYYY" string into a valid Date block
+                const [day, month, year] = rec.date.split('-');
+                if (day && month && year) {
+                    const parsedDateStart = new Date(`${year}-${month}-${day}T00:00:00.000Z`);
+                    const parsedDateEnd = new Date(`${year}-${month}-${day}T23:59:59.999Z`);
+
+                    targetCount = await prisma.appointment.count({
+                        where: {
+                            branch: safeBranch,
+                            date: {
+                                gte: parsedDateStart,
+                                lte: parsedDateEnd
+                            }
+                        }
+                    });
+                } else {
+                    targetCount = await prisma.appointment.count({ where: { branch: safeBranch } });
+                }
+            } catch (e) {
+                targetCount = await prisma.appointment.count({ where: { branch: safeBranch } });
             }
+
+            rec.appointmentCount = targetCount;
+            // Force re-calculation of the congestion tag mathematically just to be completely sure.
+            rec.congestionLevel = targetCount > 10 ? 'متوسط' : 'منخفض';
         }
 
         return NextResponse.json({
