@@ -42,18 +42,13 @@ function AISelectionScreen() {
             setExpandedIndex(null);
         } else {
             setExpandedIndex(index);
-            // Default select the AI's exact recommended time when opening
-            setSelectedExactTime(aiRecommendations[index].timeString);
-        }
-    };
-
-    const getTimeGrid = (timeString: string) => {
-        if (timeString.includes('ص')) {
-            return ['08:00 ص', '09:00 ص', '10:00 ص', '11:00 ص'];
-        } else {
-            const h = parseInt(timeString.split(':')[0] || '1', 10);
-            if (h === 12 || h <= 3) return ['12:00 م', '01:00 م', '02:00 م', '03:00 م'];
-            return ['04:00 م', '05:00 م', '06:00 م', '07:00 م', '08:00 م'];
+            // Default select the lowest count or first time string in the hourly Breakdown list
+            if (aiRecommendations[index]?.hourlyBreakdown && aiRecommendations[index].hourlyBreakdown.length > 0) {
+                const safestHour = [...aiRecommendations[index].hourlyBreakdown].sort((a, b) => a.count - b.count)[0];
+                setSelectedExactTime(safestHour.time);
+            } else {
+                setSelectedExactTime(aiRecommendations[index].timeString);
+            }
         }
     };
 
@@ -379,25 +374,41 @@ function AISelectionScreen() {
                                     </h4>
 
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
-                                        {getTimeGrid(rec.timeString).map(t => (
+                                        {rec.hourlyBreakdown ? rec.hourlyBreakdown.map((hb: any) => (
                                             <button
-                                                key={t}
-                                                onClick={(e) => { e.stopPropagation(); setSelectedExactTime(t); }}
+                                                key={hb.time}
+                                                onClick={(e) => { e.stopPropagation(); setSelectedExactTime(hb.time); }}
                                                 style={{
                                                     padding: '8px 16px',
                                                     borderRadius: '8px',
-                                                    border: `1px solid ${selectedExactTime === t ? 'var(--primary-blue)' : '#CBD5E1'}`,
-                                                    backgroundColor: selectedExactTime === t ? 'rgba(42, 44, 121, 0.05)' : '#fff',
-                                                    color: selectedExactTime === t ? 'var(--primary-blue)' : '#475569',
-                                                    fontWeight: selectedExactTime === t ? 600 : 400,
+                                                    border: `1px solid ${selectedExactTime === hb.time ? 'var(--primary-blue)' : '#CBD5E1'}`,
+                                                    backgroundColor: selectedExactTime === hb.time ? 'rgba(42, 44, 121, 0.05)' : '#fff',
+                                                    color: selectedExactTime === hb.time ? 'var(--primary-blue)' : '#475569',
+                                                    fontWeight: selectedExactTime === hb.time ? 600 : 400,
                                                     cursor: 'pointer',
                                                     transition: 'all 0.2s ease',
-                                                    fontFamily: "'IBM Plex Sans Arabic', sans-serif"
+                                                    fontFamily: "'IBM Plex Sans Arabic', sans-serif",
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                    gap: '6px'
                                                 }}
                                             >
-                                                {t}
+                                                <span>{hb.time}</span>
+                                                <span style={{
+                                                    fontSize: '11px',
+                                                    padding: '2px 8px',
+                                                    borderRadius: '4px',
+                                                    backgroundColor: hb.count <= 2 ? '#D1FAE5' : (hb.count <= 5 ? '#FEF3C7' : '#FEE2E2'),
+                                                    color: hb.count <= 2 ? '#047857' : (hb.count <= 5 ? '#B45309' : '#B91C1C'),
+                                                    fontWeight: 600
+                                                }}>
+                                                    {hb.count} شخص
+                                                </span>
                                             </button>
-                                        ))}
+                                        )) : (
+                                            <div style={{ color: '#64748B', fontSize: '14px' }}>عفواً، بيانات الازدحام غير متاحة حالياً.</div>
+                                        )}
                                     </div>
 
                                     <div style={{ display: 'flex', justifyContent: 'center' }}>

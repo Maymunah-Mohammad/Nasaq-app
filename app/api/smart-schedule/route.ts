@@ -195,15 +195,46 @@ export async function POST(req: Request) {
                 rec.appointmentCount = strictDayCount;
                 rec.hourAppointmentCount = strictHourCount;
 
+                // 4b. Generate the exact Hour-by-Hour Breakdown for the specific period grid
+                const periodHours = [];
+                if (rec.timeString.includes('ص')) {
+                    periodHours.push(8, 9, 10, 11);
+                } else {
+                    const h = parseInt(hourMatch ? hourMatch[1] : '1', 10);
+                    if (h === 12 || h <= 3) {
+                        periodHours.push(12, 13, 14, 15); // 12 PM - 3 PM
+                    } else {
+                        periodHours.push(16, 17, 18, 19, 20); // 4 PM - 8 PM
+                    }
+                }
+
+                const hourlyBreakdown = [];
+                for (let ph of periodHours) {
+                    const sHour = new Date(year, month, day, ph, 0, 0);
+                    const eHour = new Date(year, month, day, ph, 59, 59);
+                    const ct = await prisma.appointment.count({
+                        where: { branch: safeBranch, date: { gte: sHour, lte: eHour } }
+                    });
+
+                    let label = ph === 0 || ph === 12 ? 12 : (ph > 12 ? ph - 12 : ph);
+                    let suffix = ph >= 12 && ph < 24 ? 'م' : 'ص';
+                    let padLabel = label.toString().padStart(2, '0');
+                    hourlyBreakdown.push({ time: `${padLabel}:00 ${suffix}`, count: ct });
+                }
+
+                rec.hourlyBreakdown = hourlyBreakdown;
+
             } catch (e) {
                 // Fallback to total branch count if date parsing fails
                 if (liveCountsMap[safeBranch] !== undefined) {
                     rec.appointmentCount = liveCountsMap[safeBranch];
                     rec.hourAppointmentCount = 0;
+                    rec.hourlyBreakdown = [];
                 } else {
                     const adHocCount = await prisma.appointment.count({ where: { branch: safeBranch } });
                     rec.appointmentCount = adHocCount;
                     rec.hourAppointmentCount = 0;
+                    rec.hourlyBreakdown = [];
                 }
             }
         }
