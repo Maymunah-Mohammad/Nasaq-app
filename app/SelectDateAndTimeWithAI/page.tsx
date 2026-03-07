@@ -367,6 +367,26 @@ function AISelectionScreen() {
                                 </div>
                             </div>
 
+                            {/* Expand Indicator */}
+                            <div
+                                onClick={(e) => { e.stopPropagation(); handleExpand(index); }}
+                                style={{
+                                    display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4px',
+                                    marginTop: '16px', paddingTop: '12px', borderTop: '1px dashed #E2E8F0',
+                                    color: 'var(--primary-blue)', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                <span>{expandedIndex === index ? 'إخفاء الأوقات' : 'عرض الساعات الدقيقة المتاحة'}</span>
+                                <span className="material-symbols-outlined" style={{
+                                    fontSize: '18px',
+                                    transform: expandedIndex === index ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.3s ease'
+                                }}>
+                                    expand_more
+                                </span>
+                            </div>
+
                             {expandedIndex === index && (
                                 <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #E2E8F0' }}>
                                     <h4 style={{ color: '#0F172A', fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>
