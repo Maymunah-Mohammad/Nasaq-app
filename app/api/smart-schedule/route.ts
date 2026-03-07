@@ -205,13 +205,13 @@ export async function POST(req: Request) {
             } else {
                 recommendations[i].isBest = false;
                 // If they have the exact same count as the best, they are also low congestion!
-                if (count === recommendations[0].appointmentCount) {
+                // Dynamic thresholding for congestion levels:
+                if (count <= 15) {
                     recommendations[i].congestionLevel = 'منخفض';
-                } else if (count <= 3) {
-                    recommendations[i].congestionLevel = 'منخفض';
-                } else {
-                    // Otherwise, it's strictly a higher number
+                } else if (count <= 35) {
                     recommendations[i].congestionLevel = 'متوسط';
+                } else {
+                    recommendations[i].congestionLevel = 'عالي';
                 }
             }
         }

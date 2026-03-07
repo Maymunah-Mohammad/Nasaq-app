@@ -329,8 +329,8 @@ function AISelectionScreen() {
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
                                     <div style={{
-                                        backgroundColor: rec.congestionLevel === 'منخفض' ? '#D1FAE5' : '#FEF3C7',
-                                        color: rec.congestionLevel === 'منخفض' ? '#047857' : '#B45309',
+                                        backgroundColor: rec.congestionLevel === 'منخفض' ? '#D1FAE5' : (rec.congestionLevel === 'متوسط' ? '#FEF3C7' : '#FEE2E2'),
+                                        color: rec.congestionLevel === 'منخفض' ? '#047857' : (rec.congestionLevel === 'متوسط' ? '#B45309' : '#B91C1C'),
                                         padding: '6px 12px',
                                         borderRadius: '8px',
                                         fontSize: '12px',
@@ -340,7 +340,7 @@ function AISelectionScreen() {
                                         gap: '4px'
                                     }}>
                                         <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>group</span>
-                                        {rec.congestionLevel === 'منخفض' ? 'ازدحام منخفض' : 'ازدحام متوسط'}
+                                        {rec.congestionLevel === 'منخفض' ? 'ازدحام منخفض' : (rec.congestionLevel === 'متوسط' ? 'ازدحام متوسط' : 'مزدحم جداً')}
                                     </div>
                                     <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>
                                         {rec.appointmentCount} شخص مسجل
