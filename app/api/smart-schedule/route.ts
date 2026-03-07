@@ -17,11 +17,32 @@ export async function POST(req: Request) {
             });
         }
 
-        // 2. Resolve API Key from multiple potential names (including exact case from .env)
+        // 3. SECURE LIVE COUNTS: Fetch Real-Time Congestion Data from Prisma FIRST!
+        const olayaCount = await prisma.appointment.count({ where: { branch: 'فرع العليا' } });
+        const sulaimaniyahCount = await prisma.appointment.count({ where: { branch: 'فرع السليمانية' } });
+        const wurudCount = await prisma.appointment.count({ where: { branch: 'فرع الورود' } });
+        const takhasusiCount = await prisma.appointment.count({ where: { branch: 'فرع التخصصي' } });
+
+        // Maintain a live lookup dictionary
+        const liveCountsMap: Record<string, number> = {
+            'فرع العليا': olayaCount,
+            'فرع السليمانية': sulaimaniyahCount,
+            'فرع الورود': wurudCount,
+            'فرع التخصصي': takhasusiCount
+        };
+
+        if (branch && !liveCountsMap[branch]) {
+            liveCountsMap[branch] = await prisma.appointment.count({ where: { branch: branch } });
+        }
+
+        // 2. Resolve API Key
         const apiKey = process.env.Gemini_API_Key || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || process.env.API_KEY;
 
         if (!apiKey) {
             console.warn('MISSING GOOGLE_API_KEY environment variable. Falling back to Demo Mode.');
+
+            const demoBranch1 = branch || (type === 'receive' ? 'فرع العليا' : 'فرع السليمانية');
+            const demoBranch2 = type === 'receive' ? (branch || 'فرع العليا') : 'فرع الورود';
 
             // DEMO MODE: To ensure the app is "Always Live" for the user, return simulated AI results
             const demoRecommendations = [
@@ -29,18 +50,18 @@ export async function POST(req: Request) {
                     "day": selectedDays[0] || 'الأحد',
                     "date": "10-05-2026",
                     "timeString": selectedTimes[0] === 'صباحاً' ? '10:15 ص' : '02:30 م',
-                    "branch": branch || (type === 'receive' ? 'فرع العليا' : 'فرع السليمانية'),
+                    "branch": demoBranch1,
                     "congestionLevel": "منخفض",
-                    "appointmentCount": 12,
+                    "appointmentCount": liveCountsMap[demoBranch1] || 0,
                     "isBest": true
                 },
                 {
                     "day": selectedDays[selectedDays.length - 1] || 'الاثنين',
                     "date": "11-05-2026",
                     "timeString": selectedTimes[0] === 'صباحاً' ? '11:45 ص' : '04:15 م',
-                    "branch": type === 'receive' ? (branch || 'فرع العليا') : 'فرع الورود',
+                    "branch": demoBranch2,
                     "congestionLevel": "متوسط",
-                    "appointmentCount": 45,
+                    "appointmentCount": liveCountsMap[demoBranch2] || 0,
                     "isBest": false
                 }
             ];
@@ -58,15 +79,9 @@ export async function POST(req: Request) {
             generationConfig: { responseMimeType: 'application/json' }
         }); // Guarantee valid JSON output from API
 
-        // 3. Fetch Real-Time Congestion Data from Prisma!
-        const olayaCount = await prisma.appointment.count({ where: { branch: 'فرع العليا' } });
-        const sulaimaniyahCount = await prisma.appointment.count({ where: { branch: 'فرع السليمانية' } });
-        const wurudCount = await prisma.appointment.count({ where: { branch: 'فرع الورود' } });
-        const takhasusiCount = await prisma.appointment.count({ where: { branch: 'فرع التخصصي' } });
-
         let promptConfig = '';
         if (type === 'receive') {
-            const currentBranchCount = await prisma.appointment.count({ where: { branch: branch || 'فرع العليا' } });
+            const currentBranchCount = liveCountsMap[branch || 'فرع العليا'];
             promptConfig = `Context: User wants to RECEIVE a parcel. They MUST go to "${branch || 'فرع العليا'}" (Al Olaya Branch, Riyadh) only. The current number of appointments booked for this branch is ${currentBranchCount}. Suggest times for this branch specifically.`;
         } else {
             promptConfig = `
@@ -123,6 +138,18 @@ export async function POST(req: Request) {
         const jsonToParse = arrayMatch ? arrayMatch[0] : cleanedText;
 
         const recommendations = JSON.parse(jsonToParse);
+
+        // Security Override: Explicitly inject the correct Postgres counts to overwrite AI hallucinations
+        for (let rec of recommendations) {
+            const safeBranch = rec.branch;
+            if (liveCountsMap[safeBranch] !== undefined) {
+                rec.appointmentCount = liveCountsMap[safeBranch];
+            } else {
+                // If AI hallucinated a random branch name, fetch it ad-hoc
+                const adHocCount = await prisma.appointment.count({ where: { branch: safeBranch } });
+                rec.appointmentCount = adHocCount;
+            }
+        }
 
         return NextResponse.json({
             error: false,
