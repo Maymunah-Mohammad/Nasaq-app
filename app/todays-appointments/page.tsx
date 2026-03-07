@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { prisma } from '../../lib/prisma';
 import ClientAppointments from './ClientAppointments';
 
-export const revalidate = 0; // Disable cache so the page always renders the latest appointments
+export const dynamic = 'force-dynamic'; // Disable cache so the page always renders the latest appointments
 
 export default async function TodaysAppointmentsPage() {
     // Get today's date boundaries

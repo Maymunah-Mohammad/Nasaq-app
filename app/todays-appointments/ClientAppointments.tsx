@@ -22,6 +22,11 @@ export default function ClientAppointments({ appointments }: { appointments: App
     // We can generate a random queue number for demonstration
     const [queueNumber, setQueueNumber] = useState("");
 
+    const [isMounted, setIsMounted] = useState(false);
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     const handleConfirmArrival = (id: string) => {
         if (arrivedAppointments[id]) return;
         setSelectedAppointmentId(id);
@@ -70,14 +75,14 @@ export default function ClientAppointments({ appointments }: { appointments: App
                                 موعد {isSent ? 'إرسال' : 'استلام'} شحنة
                             </div>
                             <div style={{ backgroundColor: '#E2E8F0', color: '#444', padding: '4px 12px', borderRadius: '20px', fontSize: '12px' }}>
-                                {dateObj.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
+                                {isMounted ? dateObj.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) : '...'}
                             </div>
                         </div>
 
                         <div style={{ color: '#555', fontSize: '14px', lineHeight: '1.6' }}>
                             رقم التتبع: <span style={{ fontWeight: 'bold', color: '#111' }}>{app.trackingNumber}</span> <br />
                             الفرع: <span style={{ fontWeight: 'bold', color: '#111' }}>{app.branch}</span> <br />
-                            التاريخ: <span style={{ fontWeight: 'bold', color: '#111' }}>{dateObj.toLocaleDateString('ar-SA')}</span>
+                            التاريخ: <span style={{ fontWeight: 'bold', color: '#111' }}>{isMounted ? dateObj.toLocaleDateString('ar-SA') : '...'}</span>
                         </div>
 
                         {/* أنا متواجد في الفرع button & queue info */}
