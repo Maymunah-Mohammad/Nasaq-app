@@ -80,6 +80,7 @@ export default function ClientAppointments({ appointments }: { appointments: App
                         </div>
 
                         <div style={{ color: '#555', fontSize: '14px', lineHeight: '1.6' }}>
+                            نوع العمل: <span style={{ fontWeight: 'bold', color: '#111' }}>{isSent ? 'إرسال شحنة (Send Parcel)' : 'استلام شحنة (Receive Parcel)'}</span> <br />
                             رقم التتبع: <span style={{ fontWeight: 'bold', color: '#111' }}>{app.trackingNumber}</span> <br />
                             الفرع: <span style={{ fontWeight: 'bold', color: '#111' }}>{app.branch}</span> <br />
                             التاريخ: <span style={{ fontWeight: 'bold', color: '#111' }}>{isMounted ? dateObj.toLocaleDateString('ar-SA') : '...'}</span>
