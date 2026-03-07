@@ -52,6 +52,13 @@ function AISelectionScreen() {
         }
     };
 
+    const getPeriodName = (timeString: string) => {
+        if (timeString.includes('ص')) return 'الصباحية';
+        const h = parseInt(timeString.split(':')[0] || '1', 10);
+        if (h === 12 || h <= 3) return 'فترة الظهيرة';
+        return 'المسائية';
+    };
+
     const toggleDay = (day: string) => {
         if (selectedDays.includes(day)) {
             setSelectedDays(selectedDays.filter(d => d !== day));
@@ -337,7 +344,7 @@ function AISelectionScreen() {
                                     <div style={{ fontSize: '14px', color: '#64748B', fontWeight: 400, marginBottom: '8px' }}>{rec.date}</div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#475569', fontSize: '14px', marginBottom: '8px' }}>
                                         <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>schedule</span>
-                                        <span>الفترة: {rec.timeString.includes('ص') ? 'الصباحية' : 'المسائية'}</span>
+                                        <span>الفترة: {getPeriodName(rec.timeString)}</span>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#475569', fontSize: '14px' }}>
                                         <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>location_on</span>
