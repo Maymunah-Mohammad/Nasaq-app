@@ -191,6 +191,31 @@ export async function POST(req: Request) {
             }
         }
 
+        // 5. Mathematically re-evaluate "isBest" and "congestionLevel" based on the REAL counts 
+        // to prevent UI mismatch (e.g. 0 people = Medium, but 0 people = Low).
+        recommendations.sort((a: any, b: any) => a.appointmentCount - b.appointmentCount);
+
+        // After sorting, the lowest count is guaranteed to be at index 0.
+        for (let i = 0; i < recommendations.length; i++) {
+            const count = recommendations[i].appointmentCount;
+            // The absolute minimum in the array is at index 0
+            if (i === 0) {
+                recommendations[i].isBest = true;
+                recommendations[i].congestionLevel = 'منخفض';
+            } else {
+                recommendations[i].isBest = false;
+                // If they have the exact same count as the best, they are also low congestion!
+                if (count === recommendations[0].appointmentCount) {
+                    recommendations[i].congestionLevel = 'منخفض';
+                } else if (count <= 3) {
+                    recommendations[i].congestionLevel = 'منخفض';
+                } else {
+                    // Otherwise, it's strictly a higher number
+                    recommendations[i].congestionLevel = 'متوسط';
+                }
+            }
+        }
+
         return NextResponse.json({
             error: false,
             recommendations: recommendations
