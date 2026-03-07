@@ -178,37 +178,59 @@ export async function POST(req: Request) {
                     }
                 });
 
+                // Create exact Date boundaries for that specific hour of that day
+                const startOfHour = new Date(year, month, day, hourOfDay, 0, 0);
+                const endOfHour = new Date(year, month, day, hourOfDay, 59, 59);
+
+                const strictHourCount = await prisma.appointment.count({
+                    where: {
+                        branch: safeBranch,
+                        date: {
+                            gte: startOfHour,
+                            lte: endOfHour
+                        }
+                    }
+                });
+
                 rec.appointmentCount = strictDayCount;
+                rec.hourAppointmentCount = strictHourCount;
 
             } catch (e) {
                 // Fallback to total branch count if date parsing fails
                 if (liveCountsMap[safeBranch] !== undefined) {
                     rec.appointmentCount = liveCountsMap[safeBranch];
+                    rec.hourAppointmentCount = 0;
                 } else {
                     const adHocCount = await prisma.appointment.count({ where: { branch: safeBranch } });
                     rec.appointmentCount = adHocCount;
+                    rec.hourAppointmentCount = 0;
                 }
             }
         }
 
         // 5. Mathematically re-evaluate "isBest" and "congestionLevel" based on the REAL counts 
-        // to prevent UI mismatch (e.g. 0 people = Medium, but 0 people = Low).
-        recommendations.sort((a: any, b: any) => a.appointmentCount - b.appointmentCount);
+        // to prevent UI mismatch. First sort by the HOUR congestion, then by the DAY congestion.
+        recommendations.sort((a: any, b: any) => {
+            if (a.hourAppointmentCount !== b.hourAppointmentCount) {
+                return a.hourAppointmentCount - b.hourAppointmentCount;
+            }
+            return a.appointmentCount - b.appointmentCount;
+        });
 
         // After sorting, the lowest count is guaranteed to be at index 0.
         for (let i = 0; i < recommendations.length; i++) {
-            const count = recommendations[i].appointmentCount;
+            const hourCount = recommendations[i].hourAppointmentCount;
             // The absolute minimum in the array is at index 0
             if (i === 0) {
                 recommendations[i].isBest = true;
                 recommendations[i].congestionLevel = 'منخفض';
             } else {
                 recommendations[i].isBest = false;
-                // If they have the exact same count as the best, they are also low congestion!
-                // Dynamic thresholding for congestion levels:
-                if (count <= 15) {
+
+                // Dynamic thresholding for congestion levels based on HOUR count:
+                if (hourCount <= 2) {
                     recommendations[i].congestionLevel = 'منخفض';
-                } else if (count <= 35) {
+                } else if (hourCount <= 5) {
                     recommendations[i].congestionLevel = 'متوسط';
                 } else {
                     recommendations[i].congestionLevel = 'عالي';

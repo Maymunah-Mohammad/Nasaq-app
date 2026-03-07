@@ -342,8 +342,13 @@ function AISelectionScreen() {
                                         <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>group</span>
                                         {rec.congestionLevel === 'منخفض' ? 'ازدحام منخفض' : (rec.congestionLevel === 'متوسط' ? 'ازدحام متوسط' : 'مزدحم جداً')}
                                     </div>
-                                    <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>
-                                        {rec.appointmentCount} شخص مسجل
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', marginTop: '4px' }}>
+                                        <div style={{ fontSize: '13px', color: '#B45309', fontWeight: 600, backgroundColor: '#FFFBEB', padding: '2px 8px', borderRadius: '4px' }}>
+                                            {rec.hourAppointmentCount || 0} مسجلين في هذا الوقت
+                                        </div>
+                                        <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>
+                                            {rec.appointmentCount} مسجلين طوال اليوم
+                                        </div>
                                     </div>
                                 </div>
                             </div>
