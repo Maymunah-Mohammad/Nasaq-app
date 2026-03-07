@@ -21,6 +21,7 @@ export default function ClientAppointments({ appointments }: { appointments: App
 
     // We can generate a random queue number for demonstration
     const [queueNumber, setQueueNumber] = useState("");
+    const [activeTab, setActiveTab] = useState<'current' | 'upcoming' | 'passed'>('upcoming');
 
     const [isMounted, setIsMounted] = useState(false);
     React.useEffect(() => {
@@ -156,40 +157,72 @@ export default function ClientAppointments({ appointments }: { appointments: App
                 <div style={{ textAlign: 'center', color: '#999', padding: '40px 0' }}>لا يوجد مواعيد مسجلة</div>
             ) : (
                 <>
-                    {currentList.length > 0 && (
-                        <div style={{ marginBottom: '16px' }}>
-                            <h3 style={{ fontSize: '18px', color: '#047857', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span className="material-symbols-outlined">schedule</span>
-                                مواعيد حالية
-                            </h3>
+                    {/* Tabs Header */}
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', backgroundColor: '#f8fafc', padding: '6px', borderRadius: '12px' }}>
+                        <button
+                            onClick={() => setActiveTab('current')}
+                            style={{
+                                flex: 1, padding: '10px 0', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s',
+                                backgroundColor: activeTab === 'current' ? '#047857' : 'transparent',
+                                color: activeTab === 'current' ? '#fff' : '#64748B',
+                                fontFamily: "'IBM Plex Sans Arabic', sans-serif"
+                            }}
+                        >
+                            حالية ({currentList.length})
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('upcoming')}
+                            style={{
+                                flex: 1, padding: '10px 0', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s',
+                                backgroundColor: activeTab === 'upcoming' ? 'var(--primary-blue)' : 'transparent',
+                                color: activeTab === 'upcoming' ? '#fff' : '#64748B',
+                                fontFamily: "'IBM Plex Sans Arabic', sans-serif"
+                            }}
+                        >
+                            قادمة ({upcomingList.length})
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('passed')}
+                            style={{
+                                flex: 1, padding: '10px 0', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s',
+                                backgroundColor: activeTab === 'passed' ? '#64748B' : 'transparent',
+                                color: activeTab === 'passed' ? '#fff' : '#64748B',
+                                fontFamily: "'IBM Plex Sans Arabic', sans-serif"
+                            }}
+                        >
+                            سابقة ({passedList.length})
+                        </button>
+                    </div>
+
+                    {/* Tab Content */}
+                    {activeTab === 'current' && (
+                        currentList.length > 0 ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                 {currentList.map(renderCard)}
                             </div>
-                        </div>
+                        ) : (
+                            <div style={{ textAlign: 'center', color: '#999', padding: '30px 0', backgroundColor: '#f8fafc', borderRadius: '12px' }}>لا توجد مواعيد حالية</div>
+                        )
                     )}
 
-                    {upcomingList.length > 0 && (
-                        <div style={{ marginBottom: '16px' }}>
-                            <h3 style={{ fontSize: '18px', color: 'var(--primary-blue)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span className="material-symbols-outlined">event</span>
-                                مواعيد قادمة
-                            </h3>
+                    {activeTab === 'upcoming' && (
+                        upcomingList.length > 0 ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                 {upcomingList.map(renderCard)}
                             </div>
-                        </div>
+                        ) : (
+                            <div style={{ textAlign: 'center', color: '#999', padding: '30px 0', backgroundColor: '#f8fafc', borderRadius: '12px' }}>لا توجد مواعيد قادمة</div>
+                        )
                     )}
 
-                    {passedList.length > 0 && (
-                        <div style={{ marginBottom: '16px' }}>
-                            <h3 style={{ fontSize: '18px', color: '#64748B', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span className="material-symbols-outlined">history</span>
-                                مواعيد سابقة
-                            </h3>
+                    {activeTab === 'passed' && (
+                        passedList.length > 0 ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', opacity: 0.7 }}>
                                 {passedList.map(renderCard)}
                             </div>
-                        </div>
+                        ) : (
+                            <div style={{ textAlign: 'center', color: '#999', padding: '30px 0', backgroundColor: '#f8fafc', borderRadius: '12px' }}>لا توجد مواعيد سابقة</div>
+                        )
                     )}
                 </>
             )}
