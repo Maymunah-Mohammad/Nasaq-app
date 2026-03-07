@@ -62,79 +62,137 @@ export default function ClientAppointments({ appointments }: { appointments: App
         setSelectedAppointmentId(null);
     };
 
+    const now = new Date();
+    const passedList: Appointment[] = [];
+    const currentList: Appointment[] = [];
+    const upcomingList: Appointment[] = [];
+
+    appointments.forEach(app => {
+        const appDate = new Date(app.date);
+        const diffHours = (appDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+        if (diffHours < -1) {
+            passedList.push(app);
+        } else if (diffHours >= -1 && diffHours <= 1) {
+            currentList.push(app);
+        } else {
+            upcomingList.push(app);
+        }
+    });
+
+    const renderCard = (app: Appointment) => {
+        const isSent = app.type === 'send';
+        const dateObj = new Date(app.date);
+        const assignedQueueNumber = arrivedAppointments[app.id];
+        const isArrivedStatus = !!assignedQueueNumber || (selectedAppointmentId === app.id && showSuccessModal);
+
+        return (
+            <div key={app.id} style={{
+                backgroundColor: '#fff',
+                borderRadius: '12px',
+                padding: '24px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                border: '1px solid #eaeaea',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px'
+            }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--primary-blue)' }}>
+                        موعد {isSent ? 'إرسال' : 'استلام'} شحنة
+                    </div>
+                    <div style={{ backgroundColor: '#E2E8F0', color: '#444', padding: '4px 12px', borderRadius: '20px', fontSize: '12px' }}>
+                        {isMounted ? dateObj.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) : '...'}
+                    </div>
+                </div>
+
+                <div style={{ color: '#555', fontSize: '14px', lineHeight: '1.6' }}>
+                    رقم التتبع: <span style={{ fontWeight: 'bold', color: '#111' }}>{app.trackingNumber}</span> <br />
+                    الفرع: <span style={{ fontWeight: 'bold', color: '#111' }}>{app.branch}</span> <br />
+                    التاريخ: <span style={{ fontWeight: 'bold', color: '#111' }}>{isMounted ? dateObj.toLocaleDateString('ar-SA') : '...'}</span>
+                </div>
+
+                {/* أنا متواجد في الفرع button & queue info */}
+                <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {assignedQueueNumber && (
+                        <div style={{
+                            backgroundColor: '#f0fdf4', color: '#166534', padding: '12px',
+                            borderRadius: '8px', border: '1px solid #bbf7d0',
+                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                            fontWeight: 'bold'
+                        }}>
+                            <span>رقم النداء الخاص بك:</span>
+                            <span style={{ fontSize: '20px', letterSpacing: '1px' }}>{assignedQueueNumber}</span>
+                        </div>
+                    )}
+
+                    <button
+                        onClick={() => handleConfirmArrival(app.id)}
+                        disabled={isArrivedStatus}
+                        style={{
+                            width: '100%',
+                            backgroundColor: isArrivedStatus ? '#22c55e' : 'var(--primary-blue)',
+                            color: '#fff',
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: 'none',
+                            fontSize: '16px',
+                            fontWeight: 'bold',
+                            cursor: isArrivedStatus ? 'default' : 'pointer',
+                            transition: 'background-color 0.2s',
+                            boxShadow: '0 4px 10px rgba(42, 44, 121, 0.1)'
+                        }}
+                    >
+                        {isArrivedStatus ? 'تم تأكيد وصولك' : 'أنا متواجد في الفرع'}
+                    </button>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {appointments.length === 0 ? (
-                <div style={{ textAlign: 'center', color: '#999', padding: '40px 0' }}>لا يوجد مواعيد سابقة</div>
-            ) : (appointments.map((app) => {
-                const isSent = app.type === 'send';
-                const dateObj = new Date(app.date);
-                const assignedQueueNumber = arrivedAppointments[app.id];
-                const isArrivedStatus = !!assignedQueueNumber || (selectedAppointmentId === app.id && showSuccessModal);
-
-                return (
-                    <div key={app.id} style={{
-                        backgroundColor: '#fff',
-                        borderRadius: '12px',
-                        padding: '24px',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                        border: '1px solid #eaeaea',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '12px'
-                    }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--primary-blue)' }}>
-                                موعد {isSent ? 'إرسال' : 'استلام'} شحنة
-                            </div>
-                            <div style={{ backgroundColor: '#E2E8F0', color: '#444', padding: '4px 12px', borderRadius: '20px', fontSize: '12px' }}>
-                                {isMounted ? dateObj.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) : '...'}
+                <div style={{ textAlign: 'center', color: '#999', padding: '40px 0' }}>لا يوجد مواعيد مسجلة</div>
+            ) : (
+                <>
+                    {currentList.length > 0 && (
+                        <div style={{ marginBottom: '16px' }}>
+                            <h3 style={{ fontSize: '18px', color: '#047857', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span className="material-symbols-outlined">schedule</span>
+                                مواعيد حالية
+                            </h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                {currentList.map(renderCard)}
                             </div>
                         </div>
+                    )}
 
-                        <div style={{ color: '#555', fontSize: '14px', lineHeight: '1.6' }}>
-                            رقم التتبع: <span style={{ fontWeight: 'bold', color: '#111' }}>{app.trackingNumber}</span> <br />
-                            الفرع: <span style={{ fontWeight: 'bold', color: '#111' }}>{app.branch}</span> <br />
-                            التاريخ: <span style={{ fontWeight: 'bold', color: '#111' }}>{isMounted ? dateObj.toLocaleDateString('ar-SA') : '...'}</span>
+                    {upcomingList.length > 0 && (
+                        <div style={{ marginBottom: '16px' }}>
+                            <h3 style={{ fontSize: '18px', color: 'var(--primary-blue)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span className="material-symbols-outlined">event</span>
+                                مواعيد قادمة
+                            </h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                {upcomingList.map(renderCard)}
+                            </div>
                         </div>
+                    )}
 
-                        {/* أنا متواجد في الفرع button & queue info */}
-                        <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                            {assignedQueueNumber && (
-                                <div style={{
-                                    backgroundColor: '#f0fdf4', color: '#166534', padding: '12px',
-                                    borderRadius: '8px', border: '1px solid #bbf7d0',
-                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                    fontWeight: 'bold'
-                                }}>
-                                    <span>رقم النداء الخاص بك:</span>
-                                    <span style={{ fontSize: '20px', letterSpacing: '1px' }}>{assignedQueueNumber}</span>
-                                </div>
-                            )}
-
-                            <button
-                                onClick={() => handleConfirmArrival(app.id)}
-                                disabled={isArrivedStatus}
-                                style={{
-                                    width: '100%',
-                                    backgroundColor: isArrivedStatus ? '#22c55e' : 'var(--primary-blue)',
-                                    color: '#fff',
-                                    padding: '12px',
-                                    borderRadius: '8px',
-                                    border: 'none',
-                                    fontSize: '16px',
-                                    fontWeight: 'bold',
-                                    cursor: isArrivedStatus ? 'default' : 'pointer',
-                                    transition: 'background-color 0.2s',
-                                    boxShadow: '0 4px 10px rgba(42, 44, 121, 0.1)'
-                                }}
-                            >
-                                {isArrivedStatus ? 'تم تأكيد وصولك' : 'أنا متواجد في الفرع'}
-                            </button>
+                    {passedList.length > 0 && (
+                        <div style={{ marginBottom: '16px' }}>
+                            <h3 style={{ fontSize: '18px', color: '#64748B', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span className="material-symbols-outlined">history</span>
+                                مواعيد سابقة
+                            </h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', opacity: 0.7 }}>
+                                {passedList.map(renderCard)}
+                            </div>
                         </div>
-                    </div>
-                )
-            }))}
+                    )}
+                </>
+            )}
 
             {/* Confirm Modal */}
             {showConfirmModal && (
