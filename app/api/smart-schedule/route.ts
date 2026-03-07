@@ -163,22 +163,22 @@ export async function POST(req: Request) {
                 const month = parseInt(monthStr, 10) - 1; // JS months are 0-indexed
                 const day = parseInt(dayStr, 10);
 
-                // 3. Create exact Date boundaries for that specific hour of that day!
-                const startOfHour = new Date(year, month, day, hourOfDay, 0, 0);
-                const endOfHour = new Date(year, month, day, hourOfDay, 59, 59);
+                // 3. Create exact Date boundaries for the ENTIRE day!
+                const startOfDay = new Date(year, month, day, 0, 0, 0);
+                const endOfDay = new Date(year, month, day, 23, 59, 59);
 
-                // 4. Query PostgreSQL for exact registrations during this specific time
-                const strictHourCount = await prisma.appointment.count({
+                // 4. Query PostgreSQL for exact registrations during this entire day
+                const strictDayCount = await prisma.appointment.count({
                     where: {
                         branch: safeBranch,
                         date: {
-                            gte: startOfHour,
-                            lte: endOfHour
+                            gte: startOfDay,
+                            lte: endOfDay
                         }
                     }
                 });
 
-                rec.appointmentCount = strictHourCount;
+                rec.appointmentCount = strictDayCount;
 
             } catch (e) {
                 // Fallback to total branch count if date parsing fails
