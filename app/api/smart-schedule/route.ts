@@ -139,37 +139,56 @@ export async function POST(req: Request) {
 
         const recommendations = JSON.parse(jsonToParse);
 
-        // Security Override: Explicitly query Postgres for the EXACT date and branch the AI selected!
+        // Security Override: Explicitly inject the correct Postgres counts to overwrite AI hallucinations
         for (let rec of recommendations) {
             const safeBranch = rec.branch;
-            let targetCount = 0;
 
             try {
-                // Parse AI date format "DD-MM-YYYY" string into a valid Date block
-                const [day, month, year] = rec.date.split('-');
-                if (day && month && year) {
-                    const parsedDateStart = new Date(`${year}-${month}-${day}T00:00:00.000Z`);
-                    const parsedDateEnd = new Date(`${year}-${month}-${day}T23:59:59.999Z`);
+                // 1. Parse date "DD-MM-YYYY" from AI
+                const [dayStr, monthStr, yearStr] = rec.date.split('-');
+                let hourOfDay = 12;
 
-                    targetCount = await prisma.appointment.count({
-                        where: {
-                            branch: safeBranch,
-                            date: {
-                                gte: parsedDateStart,
-                                lte: parsedDateEnd
-                            }
-                        }
-                    });
-                } else {
-                    targetCount = await prisma.appointment.count({ where: { branch: safeBranch } });
+                // 2. Parse timeString "10:30 ص" into 24-hour integer
+                const hourMatch = rec.timeString.match(/(\d+):/);
+                if (hourMatch) {
+                    let h = parseInt(hourMatch[1], 10);
+                    if (rec.timeString.includes('ص')) {
+                        hourOfDay = h === 12 ? 0 : h;
+                    } else if (rec.timeString.includes('م')) {
+                        hourOfDay = h === 12 ? 12 : h + 12;
+                    }
                 }
-            } catch (e) {
-                targetCount = await prisma.appointment.count({ where: { branch: safeBranch } });
-            }
 
-            rec.appointmentCount = targetCount;
-            // Force re-calculation of the congestion tag mathematically just to be completely sure.
-            rec.congestionLevel = targetCount > 10 ? 'متوسط' : 'منخفض';
+                const year = parseInt(yearStr, 10);
+                const month = parseInt(monthStr, 10) - 1; // JS months are 0-indexed
+                const day = parseInt(dayStr, 10);
+
+                // 3. Create exact Date boundaries for that specific hour of that day!
+                const startOfHour = new Date(year, month, day, hourOfDay, 0, 0);
+                const endOfHour = new Date(year, month, day, hourOfDay, 59, 59);
+
+                // 4. Query PostgreSQL for exact registrations during this specific time
+                const strictHourCount = await prisma.appointment.count({
+                    where: {
+                        branch: safeBranch,
+                        date: {
+                            gte: startOfHour,
+                            lte: endOfHour
+                        }
+                    }
+                });
+
+                rec.appointmentCount = strictHourCount;
+
+            } catch (e) {
+                // Fallback to total branch count if date parsing fails
+                if (liveCountsMap[safeBranch] !== undefined) {
+                    rec.appointmentCount = liveCountsMap[safeBranch];
+                } else {
+                    const adHocCount = await prisma.appointment.count({ where: { branch: safeBranch } });
+                    rec.appointmentCount = adHocCount;
+                }
+            }
         }
 
         return NextResponse.json({
