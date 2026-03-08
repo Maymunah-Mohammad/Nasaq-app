@@ -21,7 +21,7 @@ export default function ClientAppointments({ appointments }: { appointments: App
 
     // We can generate a random queue number for demonstration
     const [queueNumber, setQueueNumber] = useState("");
-    const [activeTab, setActiveTab] = useState<'current' | 'upcoming' | 'passed'>('upcoming');
+    const [activeTab, setActiveTab] = useState<'current' | 'upcoming' | 'passed'>('current');
 
     const [isMounted, setIsMounted] = useState(false);
     React.useEffect(() => {
@@ -79,22 +79,31 @@ export default function ClientAppointments({ appointments }: { appointments: App
 
     appointments.forEach(app => {
         const appDate = new Date(app.date);
-        const diffHours = (appDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+        const diffMs = appDate.getTime() - now.getTime();
+        const diffHours = diffMs / (1000 * 60 * 60);
 
         if (diffHours < -1) {
+            // More than 1 hour in the past
             passedList.push(app);
-        } else if (diffHours >= -1 && diffHours <= 1) {
+        } else if (diffHours >= -1 && diffHours <= 2) {
+            // Between 1 hour ago and 2 hours from now -> "Current" for better test visibility
             currentList.push(app);
         } else {
+            // Later today
             upcomingList.push(app);
         }
     });
+
 
     const renderCard = (app: Appointment) => {
         const isSent = app.type === 'send';
         const dateObj = new Date(app.date);
         const assignedQueueNumber = arrivedAppointments[app.id];
         const isArrivedStatus = !!assignedQueueNumber || (selectedAppointmentId === app.id && showSuccessModal);
+
+        // Check if appointment is "current" (between 1 hour ago and 2 hours from now)
+        const diffHours = (dateObj.getTime() - now.getTime()) / (1000 * 60 * 60);
+        const isCurrent = diffHours >= -1 && diffHours <= 2;
 
         return (
             <div key={app.id} style={{
@@ -105,7 +114,8 @@ export default function ClientAppointments({ appointments }: { appointments: App
                 border: '1px solid #eaeaea',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '12px'
+                gap: '12px',
+                opacity: isCurrent ? 1 : 0.8 // Dim non-current appointments slightly
             }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--primary-blue)' }}>
@@ -119,7 +129,15 @@ export default function ClientAppointments({ appointments }: { appointments: App
                 <div style={{ color: '#555', fontSize: '14px', lineHeight: '1.6' }}>
                     رقم التتبع: <span style={{ fontWeight: 'bold', color: '#111' }}>{app.trackingNumber}</span> <br />
                     الفرع: <span style={{ fontWeight: 'bold', color: '#111' }}>{app.branch}</span> <br />
-                    التاريخ: <span style={{ fontWeight: 'bold', color: '#111' }}>{isMounted ? dateObj.toLocaleDateString('ar-SA') : '...'}</span>
+                    التاريخ: <span style={{ fontWeight: 'bold', color: '#111' }}>
+                        {isMounted ? dateObj.toLocaleDateString('ar-SA', {
+                            calendar: 'gregory',
+                            numberingSystem: 'latn',
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        }) : '...'}
+                    </span>
                 </div>
 
                 {/* أنا متواجد في الفرع button & queue info */}
@@ -136,24 +154,30 @@ export default function ClientAppointments({ appointments }: { appointments: App
                         </div>
                     )}
 
+                    {!isArrivedStatus && !isCurrent && (
+                        <div style={{ fontSize: '12px', color: '#B45309', textAlign: 'center', backgroundColor: '#FFFBEB', padding: '4px', borderRadius: '4px' }}>
+                            {diffHours > 2 ? 'يمكنك تأكيد الوصول عند اقتراب موعدك' : 'لقد انتهت فترة تأكيد الوصول لهذا الموعد'}
+                        </div>
+                    )}
+
                     <button
-                        onClick={() => handleConfirmArrival(app.id)}
-                        disabled={isArrivedStatus}
+                        onClick={() => isCurrent && handleConfirmArrival(app.id)}
+                        disabled={isArrivedStatus || !isCurrent}
                         style={{
                             width: '100%',
-                            backgroundColor: isArrivedStatus ? '#22c55e' : 'var(--primary-blue)',
+                            backgroundColor: isArrivedStatus ? '#22c55e' : (isCurrent ? 'var(--primary-blue)' : '#CBD5E1'),
                             color: '#fff',
                             padding: '12px',
                             borderRadius: '8px',
                             border: 'none',
                             fontSize: '16px',
                             fontWeight: 'bold',
-                            cursor: isArrivedStatus ? 'default' : 'pointer',
+                            cursor: (isArrivedStatus || !isCurrent) ? 'default' : 'pointer',
                             transition: 'background-color 0.2s',
-                            boxShadow: '0 4px 10px rgba(42, 44, 121, 0.1)'
+                            boxShadow: isCurrent ? '0 4px 10px rgba(42, 44, 121, 0.1)' : 'none'
                         }}
                     >
-                        {isArrivedStatus ? 'تم تأكيد وصولك' : 'أنا متواجد في الفرع'}
+                        {isArrivedStatus ? 'تم تأكيد وصولك' : (isCurrent ? 'أنا متواجد في الفرع' : 'تأكيد الوصول غير متاح حالياً')}
                     </button>
                 </div>
             </div>

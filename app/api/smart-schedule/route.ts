@@ -44,12 +44,25 @@ export async function POST(req: Request) {
             const demoBranch1 = branch || (type === 'receive' ? 'فرع العليا' : 'فرع السليمانية');
             const demoBranch2 = type === 'receive' ? (branch || 'فرع العليا') : 'فرع الورود';
 
+            const now = new Date();
+            const formatTime = (date: Date) => {
+                let h = date.getHours();
+                const m = date.getMinutes().toString().padStart(2, '0');
+                const suffix = h >= 12 ? 'م' : 'ص';
+                h = h % 12 || 12;
+                return `${h}:${m} ${suffix}`;
+            };
+
+            // Calculate dynamic demo times to ensure they are always in the future
+            const demoTime1 = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour from now
+            const demoTime2 = new Date(now.getTime() + 3 * 60 * 60 * 1000); // 3 hours from now
+
             // DEMO MODE: To ensure the app is "Always Live" for the user, return simulated AI results
             const demoRecommendations = [
                 {
                     "day": selectedDays[0] || 'الأحد',
-                    "date": "10-05-2026",
-                    "timeString": selectedTimes[0] === 'صباحاً' ? '10:15 ص' : '02:30 م',
+                    "date": now.toLocaleDateString('en-GB').split('/').join('-'),
+                    "timeString": formatTime(demoTime1),
                     "branch": demoBranch1,
                     "congestionLevel": "منخفض",
                     "appointmentCount": liveCountsMap[demoBranch1] || 0,
@@ -57,8 +70,8 @@ export async function POST(req: Request) {
                 },
                 {
                     "day": selectedDays[selectedDays.length - 1] || 'الاثنين',
-                    "date": "11-05-2026",
-                    "timeString": selectedTimes[0] === 'صباحاً' ? '11:45 ص' : '04:15 م',
+                    "date": now.toLocaleDateString('en-GB').split('/').join('-'),
+                    "timeString": formatTime(demoTime2),
                     "branch": demoBranch2,
                     "congestionLevel": "متوسط",
                     "appointmentCount": liveCountsMap[demoBranch2] || 0,
@@ -105,10 +118,15 @@ export async function POST(req: Request) {
             ${promptConfig}
             
             Today's Date: ${new Date().toLocaleDateString('en-GB')}
+            Today's Current Time: ${new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', hour12: true, numberingSystem: 'latn' })}
+            
             The user wants an appointment in one of these days: ${selectedDays.join(' or ')}.
             The user wants an appointment in one of these time slots: ${selectedTimes.join(' or ')}.
             
             Return exactly ${count} highly specific recommended appointments as a JSON array. 
+            
+            CRITICAL TIMING RULE: If you suggest an appointment for TODAY, you MUST strictly ensure that the "timeString" is at least 30 minutes in the FUTURE from the "Today's Current Time" provided above. NEVER suggest a time that has already passed.
+            
             Do NOT return markdown framing (no \`\`\`json). Just the raw JSON array.
             
             The structure of each object in the array must be exactly:
@@ -145,17 +163,20 @@ export async function POST(req: Request) {
             const safeBranch = rec.branch;
 
             try {
-                // 1. Parse date "DD-MM-YYYY" from AI
-                const [dayStr, monthStr, yearStr] = rec.date.split('-');
+                // 1. Parse date gracefully handling AI varying syntaxes (e.g. 12/03/2026 vs 12-03-2026)
+                const safeDateStr = (rec.date || '').replace(/\//g, '-').trim();
+                const [dayStr, monthStr, yearStr] = safeDateStr.split('-');
                 let hourOfDay = 12;
 
+                const timeStr = rec.timeString || '12:00 م';
+
                 // 2. Parse timeString "10:30 ص" into 24-hour integer
-                const hourMatch = rec.timeString.match(/(\d+):/);
+                const hourMatch = timeStr.match(/(\d+):/);
                 if (hourMatch) {
                     let h = parseInt(hourMatch[1], 10);
-                    if (rec.timeString.includes('ص')) {
+                    if (timeStr.includes('ص')) {
                         hourOfDay = h === 12 ? 0 : h;
-                    } else if (rec.timeString.includes('م')) {
+                    } else if (timeStr.includes('م')) {
                         hourOfDay = h === 12 ? 12 : h + 12;
                     }
                 }
@@ -197,7 +218,7 @@ export async function POST(req: Request) {
 
                 // 4b. Generate the exact Hour-by-Hour Breakdown for the specific period grid
                 const periodHours = [];
-                if (rec.timeString.includes('ص')) {
+                if (timeStr.includes('ص')) {
                     periodHours.push(8, 9, 10, 11);
                 } else {
                     const h = parseInt(hourMatch ? hourMatch[1] : '1', 10);
@@ -210,9 +231,15 @@ export async function POST(req: Request) {
 
                 const hourlyBreakdown = [];
                 let totalPeriodCount = 0;
+                const now = new Date();
+
                 for (let ph of periodHours) {
                     const sHour = new Date(year, month, day, ph, 0, 0);
                     const eHour = new Date(year, month, day, ph, 59, 59);
+
+                    // SKIP PAST HOURS: If the hour has already passed (relative to today/now), don't suggest it
+                    if (sHour < now) continue;
+
                     const ct = await prisma.appointment.count({
                         where: { branch: safeBranch, date: { gte: sHour, lte: eHour } }
                     });
@@ -229,6 +256,7 @@ export async function POST(req: Request) {
                 rec.periodAppointmentCount = totalPeriodCount;
 
             } catch (e) {
+                console.warn('Silent JSON parsing/Prisma block error handled:', e);
                 // Fallback to total branch count if date parsing fails
                 if (liveCountsMap[safeBranch] !== undefined) {
                     rec.appointmentCount = liveCountsMap[safeBranch];

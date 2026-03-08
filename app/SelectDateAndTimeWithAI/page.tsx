@@ -230,25 +230,41 @@ function AISelectionScreen() {
 
                     <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#0F172A', marginBottom: '16px' }}>2. الأوقات المناسبة</h2>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '32px' }}>
-                        {TIMES.map(time => (
-                            <button
-                                key={time}
-                                onClick={() => toggleTime(time)}
-                                style={{
-                                    padding: '8px 16px',
-                                    borderRadius: '20px',
-                                    border: `1px solid ${selectedTimes.includes(time) ? 'var(--primary-blue)' : '#E2E8F0'}`,
-                                    backgroundColor: selectedTimes.includes(time) ? 'rgba(42, 44, 121, 0.05)' : '#fff',
-                                    color: selectedTimes.includes(time) ? 'var(--primary-blue)' : '#475569',
-                                    fontWeight: selectedTimes.includes(time) ? 600 : 400,
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease',
-                                    fontFamily: "'IBM Plex Sans Arabic', sans-serif"
-                                }}
-                            >
-                                {time}
-                            </button>
-                        ))}
+                        {TIMES.map(time => {
+                            const todayIndex = new Date().getDay();
+                            const todayName = DAYS[todayIndex];
+                            const isTodaySelected = selectedDays.includes(todayName) && selectedDays.length === 1;
+                            const currentHour = new Date().getHours();
+
+                            let isDisabled = false;
+                            if (isTodaySelected) {
+                                if (time === 'صباحاً' && currentHour >= 12) isDisabled = true;
+                                if (time === 'ظهراً' && currentHour >= 16) isDisabled = true;
+                                if (time === 'مساءً' && currentHour >= 21) isDisabled = true;
+                            }
+
+                            return (
+                                <button
+                                    key={time}
+                                    onClick={() => !isDisabled && toggleTime(time)}
+                                    disabled={isDisabled}
+                                    style={{
+                                        padding: '8px 16px',
+                                        borderRadius: '20px',
+                                        border: `1px solid ${isDisabled ? '#F1F5F9' : (selectedTimes.includes(time) ? 'var(--primary-blue)' : '#E2E8F0')}`,
+                                        backgroundColor: isDisabled ? '#F8FAFC' : (selectedTimes.includes(time) ? 'rgba(42, 44, 121, 0.05)' : '#fff'),
+                                        color: isDisabled ? '#CBD5E1' : (selectedTimes.includes(time) ? 'var(--primary-blue)' : '#475569'),
+                                        fontWeight: selectedTimes.includes(time) ? 600 : 400,
+                                        cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                        transition: 'all 0.2s ease',
+                                        fontFamily: "'IBM Plex Sans Arabic', sans-serif",
+                                        opacity: isDisabled ? 0.6 : 1
+                                    }}
+                                >
+                                    {time}
+                                </button>
+                            );
+                        })}
                     </div>
 
 

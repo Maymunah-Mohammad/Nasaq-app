@@ -13,21 +13,69 @@ export default async function TodaysAppointmentsPage() {
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
-    // Fetch only today's appointments (ordering by date descending to see newest first)
-    const appointments = await prisma.appointment.findMany({
-        where: {
-            date: {
-                gte: todayStart,
-                lte: todayEnd,
+    let appointments: any[] = [];
+    let isDemoMode = false;
+
+    try {
+        // Fetch only today's appointments (ordering by date descending to see newest first)
+        appointments = await prisma.appointment.findMany({
+            where: {
+                date: {
+                    gte: todayStart,
+                    lte: todayEnd,
+                }
+            },
+            include: {
+                pendingParcel: true
+            },
+            orderBy: {
+                createdAt: 'desc'
             }
-        },
-        include: {
-            pendingParcel: true
-        },
-        orderBy: {
-            createdAt: 'desc'
-        }
-    });
+        });
+    } catch (dbError) {
+        console.error('Database connection error in TodaysAppointmentsPage:', dbError);
+        isDemoMode = true;
+    }
+
+    // Fallback if DB is down or empty (for presentation purposes)
+    if (isDemoMode || appointments.length === 0) {
+        const nowObj = new Date();
+        const endOfToday = new Date(nowObj);
+        endOfToday.setHours(23, 59, 59, 999);
+
+        // Upcoming should be 1 hour from now or 11:30 PM, whichever is earlier, to stay "Today"
+        const upcomingTime = Math.min(nowObj.getTime() + 2 * 60 * 60 * 1000, endOfToday.getTime() - 10 * 60000);
+
+        appointments = [
+            {
+                id: 'demo-app-current',
+                type: 'send',
+                status: 'pending',
+                branch: 'فرع السليمانية',
+                date: new Date(nowObj.getTime() + 10 * 60000), // 10 mins from now
+                phone: '+966500000000',
+                pendingParcel: { trackingNumber: 'SPL-123456789' }
+            },
+            {
+                id: 'demo-app-upcoming',
+                type: 'receive',
+                status: 'pending',
+                branch: 'فرع العليا',
+                date: new Date(upcomingTime),
+                phone: '+966500000000',
+                pendingParcel: { trackingNumber: 'SPL-987654321' }
+            },
+            {
+                id: 'demo-app-passed',
+                type: 'send',
+                status: 'pending',
+                branch: 'فرع الورود',
+                date: new Date(nowObj.getTime() - 3 * 60 * 60000), // 3 hours ago
+                phone: '+966500000000',
+                pendingParcel: { trackingNumber: 'SPL-555555555' }
+            }
+        ];
+    }
 
     // We can format the appointment data for the client
     const serializedAppointments = appointments.map(app => ({
